@@ -1,0 +1,85 @@
+<div class="playing-area">
+
+    <div class="table-wrapper">
+        <table id = "table" gameId= <%= game.gameId %> cellspacing="0">
+            <tbody>
+                <% for (let i = 0; i < game.height; i++) { %>
+                    <tr>
+                        <% for (let k = 0; k < game.width; k++) { %>
+                            <td class="cell cell-closed"></td>
+                        <% } %>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="game-menu">
+        <% if (!game.singlePlayer) { %>
+            <div class="player1info player-info">
+                <div class="avatar-wrapper">
+                    <picture>
+                        <img class="avatar avatar-mini" src= <%= player1.avatar %> alt= "<%= player1.name || player1.username %>">
+                    </picture>
+                </div>
+                <div class="userInfo">
+                    <div class="username-wrapper">
+                        
+                        <h2 class="username"><%= player1.name || player1.username %></h2>
+                    </div>
+                    <div class="rank-wrapper">
+                        <div class="rank-star"></div>
+                        <span class="rank"><%= player1.rank %></span>    
+                    </div>
+                </div>
+            </div>
+        <% }; %>
+        <div class="game-menu-item-wrapper">
+            <div class="game-menu-item"><div class="player1touches touches-counter">0</div></div>
+            <div class="game-menu-item"><div class="timer">999</div></div>
+            <div class="game-menu-item"><div class="mines-left"><%= game.num %></div></div>
+            <% if (!game.singlePlayer) { %>
+                <div class="game-menu-item"><div class="player2touches touches-counter">0</div></div>
+            <% }; %>
+            <% if (game.singlePlayer) { %>
+                <div class="game-menu-item"><button type="button" class="restart"></button></div>
+            <% }; %>
+        </div>
+        <% if (!game.singlePlayer) { %>
+            <div class="player2info player-info">
+                <div class="avatar-wrapper">
+                    <picture>
+                        <img class="avatar avatar-mini" src= <%= `${player2.avatar || "/images/waiting.png"}` %> alt= "waiting">
+                    </picture>
+                </div>
+                <div class="userInfo">
+                    <div class="username-wrapper">
+                        <h2 class="username"><%= player2.name || player2.username || 'Player 2' %></h2>
+                    </div>
+                    <div class="rank-wrapper">
+                        <div class="rank-star"></div>
+                        <span class="rank"><%= player2.rank || 9999 %></span>    
+                    </div>
+                </div>
+            </div>
+        <% }; %>
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="/css/minesweeper.css">
+<% if (!game.singlePlayer) { %>
+    <style>
+        .content-page{
+            width: auto;
+            min-width: auto;
+            height: auto;
+            min-height: auto;
+        }
+        @media (max-width: 1160px) {
+            .content {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+<% }; %>

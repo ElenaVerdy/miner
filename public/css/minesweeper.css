@@ -1,0 +1,106 @@
+.playing-area{
+    display: flex;
+    flex-direction: column-reverse;
+    box-sizing: border-box;
+} 
+.table-wrapper{
+    display: flex;
+    justify-content: center;
+}
+.restart{
+    margin: 5px auto;
+    width: 40px;
+    height: 40px;
+    background-image: url("/images/restart.svg");
+    background-color: rgba(0,0,0,0);
+    border: 0px;
+    background-size: cover;
+}
+.cell{
+    text-align: center;
+    min-width: 23px;
+    width: 23px;
+    height: 23px;
+    padding: 0px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.mines-around-num{
+    margin-top: -2px;
+    cursor: default;
+    pointer-events: none;
+}
+.cell-closed{
+    background-color: yellowgreen;
+    border: 1px solid darkgreen;
+    cursor: pointer;
+}
+.cell-opened{
+    background-color: #CD853F;;
+}
+.flag{
+    background-image: url("/images/flag.png");
+    background-size: cover;
+}
+.flag2{
+    background-image: url("/images/flag-blue.png");
+    background-size: cover;
+}
+.game-menu, .game-menu-item-wrapper{
+    display: flex;
+    justify-content: space-between;
+}
+.game-menu-item-wrapper {
+
+    flex: 1;
+}
+.game-menu-item:first-child{
+    border-width: 1px;
+}
+.game-menu-item{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25%;
+    background-color: olivedrab;
+    border: solid;
+    border-width: 1px 1px 1px 0px;
+}
+.game-menu-item>*{
+    font-size: x-large;
+    color: burlywood;
+    font-weight: 500;
+}
+.content-page .game-menu-item {
+    font-weight: 500;
+    font-size: -webkit-xxx-large;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 150, 0, 0.1)
+}
+
+.game-menu .player-info {
+    width: 25%;
+}
+.avatar-mini {
+    height: 60px;
+}
+.player2info {
+    flex-direction: row-reverse;
+}
+.mine-found{
+    background-image: url("/images/mine-found.png");
+    background-size: cover;
+    background-color: yellowgreen;
+}
+.mine-found:hover{
+    background-image: url("/images/mine-found_hover.png");
+}
+.exploded{
+    background-image: url("/images/exploded.png");
+    background-size: cover;
+    background-color: brown;
+}
+.wrong-move{
+    background-size: cover;
+    background-image: url("/images/exploded.png");
+    background-color: red;
+}

@@ -1,0 +1,57 @@
+<div class="modal" id="authorizationModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        
+            <div class="modal-body">
+                <form method="post" >
+                    <div class="form-group">
+                        <label for="login">Login</label>
+                        <input class="form-control" type="text" id="loginInput" name="login">
+                    </div>
+                    <div class="alert alert-danger collapse bad-login" role="alert">
+                        You can only use latin letters, numbers and dashes in your login.
+                    </div>
+                    <div class="alert alert-danger collapse name-taken" role="alert">
+                        Unfortunately this login has already been taken! Please choose another one.
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input class="form-control" type="password" id="passwordInput" name="password">
+                    </div>
+                    <div class="alert alert-danger collapse bad-password" role="alert">
+                        You can only use latin letters and numbers in your password.
+                    </div>
+                    <div class="alert alert-danger collapse bad-credentials" role="alert">
+                        The user name or password is incorrect. Try again.
+                    </div>
+
+                    <div class="form-group collapse for-signing-up">
+                        <label for="password-repeat">Repeat your password</label>
+                        <input class="form-control" type="password" id="password-repeat" name="password-repeat">
+                    </div>
+                    <div class="alert alert-danger collapse passwords-dont-match" role="alert">
+                        The passwords do not match!
+                    </div>
+
+                    <div class="form-group collapse for-signing-up">
+                        <label for="emailInput">E-mail</label>
+                        <input class="form-control" type="email" id="emailInput" name="emailInput" placeholder="email@minesweeper.com">
+                    </div>
+                    <div class="alert alert-danger collapse email-taken" role="alert">
+                        You already have an account or this email-address is not yours:)
+                    </div>
+                    <div class="alert alert-danger collapse bad-email" role="alert">
+                        Enter real email!
+                    </div>
+                    
+                    <a href="" class="collapse for-signing-up back-to-log-in" onclick="return false">Log in using exsisting account</a>
+                    <div class="btn-group btn-block btn-wrapper">
+                        <button type="button" class="btn btn-success login-signing-btns log-in-btn">Login</button>
+                        <button type="button" class="btn btn-info login-signing-btns sign-up-btn">Sing up</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

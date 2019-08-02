@@ -1,0 +1,65 @@
+.modal{
+    background-color: rgba(0,0,0,0.3)
+}
+span, h1{
+    cursor: default;
+}
+.bg{
+    background-image: url("/images/bg.jpg");
+    height: 100%;
+    width: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: fixed;
+    z-index: -1;
+}
+body, html{
+    height: 100%;
+    margin: 0;
+}
+.main{
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+.dropdown{
+    display: none;
+}
+.dropdown-toggle{
+    background-color: yellowgreen;
+}
+.dropdown-divider{
+    border-color: darkgreen;
+}
+.dropdown-item:hover{
+    background-color: rgb(187, 238, 69);
+}
+.header{
+    background-color: yellowgreen;
+    justify-content: flex-start;
+    min-width: 340px;
+}
+.dropdown-menu{
+    background-color: yellowgreen;
+}
+.dropdown-menu{
+    display: block;
+}
+.nav-link{
+    color: darkgreen;
+}
+.content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 11 auto;
+}
+@media( max-width: 440px ) {
+    .dropdown{
+        display: block;
+    }
+    .header{
+        display: none;
+    }
+}

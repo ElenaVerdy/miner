@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru-RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Сапёр</Title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/common.css">
+    <link rel="stylesheet" type="text/css" href="/css/minesweeper.css">
+    <link rel="stylesheet" type="text/css" href="/css/authorization.css">
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+
+</head>
+<body>
+    <%- include('partitials/authorization') %>
+    <div class="modal" id="authorizationServerError" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body serverError">
+                    <h1>That's not so good</h1>
+                    <span class="text-justify">Unfortunately, there has been a mistake and our server couldn't do what has to be done.
+                        We are deeply sorry and doing our best on not letting it happen again.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg">
+    </div>
+    <div class="main">
+        <%- include('partitials/header') %>
+
+        <div class="content">
+            <div class="flex-wrapper">
+
+                <div class="description">
+                    <h1>Minesweeper multiplayer</h1>
+                    <p><span class="text-justify">Minesweeper is one of the most widely known and loved games
+                        in the entire history of video games. And it's no longer single-player! 
+                        <span class="aka-link log-in" data-toggle="modal" data-target="#authorizationModal">log in</span> or <span class="aka-link sign-up">sign up</span> to play with 
+                        your friend or <span class="aka-link start-as-guest">start game</span> as a guest right now! Good luck and have fun!</span></p>
+
+                </div>
+
+                <div role="dialog" id="dialog" class="">
+                        <%- include('partitials/gameField') %>
+                </div>
+
+            </div>
+        </div>
+    </div>    
+    <script src="js/login.js"></script>
+    <script src="js/clientSinglePlayer.js"></script>
+</body>
+</html>

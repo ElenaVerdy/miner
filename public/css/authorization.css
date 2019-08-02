@@ -1,0 +1,28 @@
+.serverError{
+    align-self: center;
+    width: 60vw;
+    border-radius: 5px;
+    background-color: white;
+    padding: 3vw;
+}
+.login-signing-btns{
+    margin-top: 10px;
+    width: 50%;
+}
+.full-width{
+    width: 100%;
+}
+.back-to-log-in{
+    display: block;
+    margin-bottom: -5px;
+}
+.invalidInput{
+    animation-name: on-invalid-input;
+    animation-duration: 1000ms;
+}
+@keyframes on-invalid-input{
+    0%{background-color: rgba(0,0,0,0)}
+    40%{background-color: crimson}
+    60%{background-color: crimson}
+    100%{background-color: rgba(0,0,0,0)}
+}

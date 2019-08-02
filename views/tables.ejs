@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru-RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Сапёр</Title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/common.css">
+    <link rel="stylesheet" type="text/css" href="/css/tables.css">    
+</head>
+<body>
+    <div class="modal" id="new-game-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body new-game-body">
+                    <h1>Settings</h1>
+                    <div class="game-mode-wrapper">
+                        <span>Choose game mode:</span>
+                        <select name="game-mode" id="game-mode">
+                            <option value="multiplayer">Multiplayer</option>
+                            <option value="singleplayer">Singleplayer</option>
+                        </select>
+                    </div>
+                    <div class="for-singleplayer collapse">
+                        <div class="game-mode-wrapper">
+                            <span>Choose field-size:</span>
+                            <select name="field-size" id="field-size">
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="for-multiplayer">
+                        <div class="game-mode-wrapper">
+                            <span>For authorized players only:</span>
+                            <input type="checkbox" name="forAuthorizedPlayers" id="forAuthorizedPlayers">
+                        </div>
+                    </div>
+                    <input type="button" class="start-game" value="start-game">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="authorizationServerError" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body serverError">
+                    <h1>That's not so good</h1>
+                    <span class="text-justify">Unfortunately, there has been a mistake something went wrong. We're sorry.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="waitingForOtherPlayer" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body waitingForOtherPlayer">
+                    <h1>Looking for other player.</h1>
+                    <button class="back-to-tables">back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="gameResults" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered modal-wide" role="document">
+            <div class="modal-content">
+                <div class="modal-body gameResults">
+                    <h1 class="game-result"></h1>
+                    <div class="records"></div>
+                    <div class="btn-group btn-block btn-wrapper">
+                        <button type="button" class="btn btn-outline-success">Play again</button>
+                        <button type="button" class="btn btn-outline-success">Tables</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg">
+    </div>
+    <div class="main">
+        <%- include('partitials/header') %>
+
+        <div class="content">
+            <div class="content-page">
+                <div class="content-header">
+                    <div class="avatar-wrapper">
+                        <picture>
+                            <img class="avatar" src= <%= avatar %> alt= <%= username %>>
+                        </picture>
+                    </div>
+                    <div class="userInfo">
+                        <div class="username-wrapper">
+                            <h2 class="username"><%= name || username %></h2>
+                            <input class="change-name-input collapse" type="text" >
+                            <input class="change-name" type="button">
+                        </div>
+                        <div class="rank-wrapper">
+                            <div class="rank-star"></div>
+                            <span class="rank"><%= rank %></span>    
+                        </div>
+                    </div>
+                </div>
+                <div class="content-main">
+                    <input class="new-game" type="button">
+                    <div class="tables">
+                        <% tables.forEach((table, i)=>{ %>
+                            <div class="game-table">
+                                <div class="player1wrapper player-info">
+                                    <% if (table.isGameOn && !table.player1.isInGame && table.player1.username === username) {%>
+                                        <button class="continue join-button" gameId=<%= table.gameId %> >Back to the game</button>
+                                    <% } else { %>
+                                        <div class="player1name"><%= table.player1.name || table.player1.username %></div>
+                                        <div class="rank-wrapper">
+                                            <div class="rank-star rank-star-mini"></div>
+                                            <span class="rank rank-dark"><%= table.player1.rank %></span>    
+                                        </div>
+                                    <% }; %>
+                                </div>
+                                <% if (table.player2) {%>
+                                    <div class="player2wrapper player-info">
+                                        <% if (table.isGameOn && !table.player2.isInGame && table.player2.username === username) {%>
+                                            <button class="continue join-button" gameId=<%= table.gameId %> >Back to the game</button>
+                                        <% } else { %>
+                                        <div class="player2name"><%= table.player2.name || table.player2.username %></div>
+                                        <div class="rank-wrapper">
+                                            <span class="rank rank-dark"><%= table.player2.rank %></span>
+                                            <div class="rank-star rank-star-mini"></div>
+                                        </div>
+                                        <% }; %>
+                                    </div>
+                                <% } else { %>
+                                    <div class="join-button-wrapper">
+                                        <button class="join-button" gameId=<%= table.gameId %> >join</button>
+                                    </div>
+                                <% } %>
+                            </div> 
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/socket.io.js"></script>
+    <script src="/js/tables.js"></script>    
+    <script>
+        document.getElementsByClassName("back-to-tables")[0].onclick = () => {window.location.reload()};
+    </script>
+</body>
+</html>

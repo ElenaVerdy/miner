@@ -1,0 +1,35 @@
+<li class="menu-item dropdown">
+  <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Menu</a>
+  <div class="dropdown-menu collapse">
+    <a class="dropdown-item" href="#">Play</a>
+    <a class="dropdown-item" href="#">Achievements</a>
+    <a class="dropdown-item" href="#">Rules</a>
+    <a class="dropdown-item" href="#">About</a>
+    <% if (isLoggedIn) { %>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item logout" href="#">Logout</a>
+    <% }; %>
+    </div>
+</li>
+<script>
+  document.getElementsByClassName("dropdown-toggle")[0].onclick = event => {
+    document.getElementsByClassName("dropdown-menu")[0].classList.toggle("collapse");
+  }
+</script>
+<nav class="nav header">
+  <div class="menu-item"><a class="nav-link menu-item" tabindex="1" href="/">Play</a></div>
+  <div class="menu-item"><a class="nav-link menu-item" tabindex="2" href="#">Achievements</a></div>
+  <div class="menu-item"><a class="nav-link menu-item" tabindex="3" href="#">Rules</a></div>
+  <div class="menu-item"><a class="nav-link menu-item" tabindex="4" href="#">About</a></div>
+  <% if (isLoggedIn) { %>
+    <div class="menu-item ml-auto"><a class="nav-link menu-item logout" tabindex="4" href="#">logout</a></div>
+    <script>
+      [].slice.call(document.getElementsByClassName("logout")).forEach(item=>{
+        item.onclick = ()=>{
+        document.cookie = 'access_token=; expires=' + new Date().toGMTString()+";";
+        window.location.reload();
+      }
+    });
+    </script>
+  <% }; %>
+</nav>

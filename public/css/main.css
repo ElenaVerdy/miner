@@ -1,0 +1,52 @@
+.flex-wrapper{
+    display: flex;
+    min-height: 40vh;
+}
+#dialog, .description{
+    background-color: blanchedalmond;
+    border:solid black;
+}
+#dialog{
+    width: 30vw;
+    min-width: 300px;    
+    border-width: 2px 2px 2px 1px;
+    border-radius: 0% 10% 10% 0%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.description{
+    width: 30vw;
+    min-width: 300px;
+    border-width: 2px 0px 2px 2px;
+    border-radius: 10% 0% 0% 10%;
+    padding: 35px;
+}
+.aka-link{
+    color: blue;
+    text-decoration: underline solid blue;    
+    cursor: pointer;
+}
+@media (max-width: 600px) {
+    .flex-wrapper{
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 90vw;
+    }
+    .description{
+        border-width: 2px 2px 0px 2px;
+        border-radius: 10px 10px 0px 0px
+    }
+    #dialog{
+        border-width: 1px 2px 2px 2px;
+        border-radius: 0px 0px 10px 10px
+    }
+    #dialog, .description{
+        max-width: 400px;
+        width: 100%;
+        height: auto;
+        margin: 0px;
+        padding: 15px;
+    }
+}

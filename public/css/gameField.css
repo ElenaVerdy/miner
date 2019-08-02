@@ -1,0 +1,33 @@
+td{
+    text-align: center;
+    width: 2vmax;
+    height: 2vmax;
+}
+.cell-closed{
+    background-color: yellowgreen;
+    border: 1px solid darkgreen;
+    cursor: pointer;
+}
+.cell-opened{
+    background-color: aquamarine;
+}
+.flag{
+    background-color: red;
+}
+.playing-area{
+    box-sizing: border-box;
+}
+.menu{
+    display: flex;
+    justify-content: space-between;
+}
+.exploded{
+    background-image: url("/images/exploded.png");
+    background-size: cover;
+    background-color: brown;
+}
+.wrong-move{
+    background-size: cover;
+    background-image: url("/images/exploded.png");
+    background-color: red;
+}
