@@ -11,11 +11,6 @@
     <% }; %>
     </div>
 </li>
-<script>
-  document.getElementsByClassName("dropdown-toggle")[0].onclick = event => {
-    document.getElementsByClassName("dropdown-menu")[0].classList.toggle("collapse");
-  }
-</script>
 <nav class="nav header">
   <div class="menu-item"><a class="nav-link menu-item" tabindex="1" href="/">Play</a></div>
   <div class="menu-item"><a class="nav-link menu-item" tabindex="2" href="#">Achievements</a></div>
@@ -33,3 +28,8 @@
     </script>
   <% }; %>
 </nav>
+<script>
+  document.getElementsByClassName("dropdown-toggle")[0].onclick = event => {
+    document.getElementsByClassName("dropdown-menu")[0].classList.toggle("collapse");
+  }
+</script>

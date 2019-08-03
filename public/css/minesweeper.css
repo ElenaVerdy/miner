@@ -50,7 +50,6 @@
     justify-content: space-between;
 }
 .game-menu-item-wrapper {
-
     flex: 1;
 }
 .game-menu-item:first-child{

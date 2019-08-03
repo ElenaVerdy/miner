@@ -10,6 +10,7 @@
     border-radius: 10px;
     border: solid darkolivegreen;
     border-width:4px;
+    text-overflow: ellipsis;
 }
 .content-header{
     border-radius: 5px 5px 0px 0px;
@@ -41,6 +42,7 @@
     align-items: center;
 }
 .username{
+    width: 150px;
     display: block;
     color: goldenrod;
     margin-right: 5px;
@@ -79,19 +81,36 @@ select{
     justify-content: center;
     padding-right: 2px;
 }
-.game-table {
+.game-table{
     display: flex;
     width: 95%;
-    height: 3em;
+    height: 2em;
     border: 1px grey solid;
     border-radius: 3px;
-    background-color: white;
-    justify-content: space-between;
+    background-image: linear-gradient(to bottom, #ffffff, #fcfac0);
     align-content: center;
     margin-top: 9px;
 }
+.game-info {
+    display: flex;
+    flex: 10 100%;
+    align-content: center;
+    justify-content: space-between;
+}
 .game-table > * {
     margin: 6px;
+}
+.num {
+    flex: 1;
+    margin-top: 3px;
+    padding: 0px 3px;
+    font-weight: 500;
+}
+.separator{
+    width: 1px;
+    height: 100%;
+    background-color: grey;
+    margin: 0px;
 }
 .join-button {
     border: 0px;
@@ -165,4 +184,9 @@ select{
 ::-webkit-scrollbar-thumb {
     background-color: rgba(0,0,0,0.4);
     border-radius: 5px;
+}
+@media(max-width: 440px) {
+    .content-page{
+        width: 95%;
+    }
 }

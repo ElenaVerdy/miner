@@ -41,10 +41,11 @@ body, html{
     min-width: 340px;
 }
 .dropdown-menu{
+    display: block;
     background-color: yellowgreen;
 }
-.dropdown-menu{
-    display: block;
+.collapse{
+    display: none;
 }
 .nav-link{
     color: darkgreen;

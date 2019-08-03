@@ -281,6 +281,30 @@ let Authorization = function(){
                 }));
                   
             }
+
+            document.getElementsByClassName("log-in-btn")[0].onkeypress = function(event) {
+                if (event.which == 13 || event.keyCode == 13) {
+                    this.click();
+                }
+            }
+
+            document.onkeypress = event => {
+                if (event.target.tagName !== "INPUT") return;
+                if (event.which == 13 || event.keyCode == 13) {
+                    event.preventDefault();
+                    var canfocus = [...document.getElementsByTagName("FORM")[0]
+                                    .querySelectorAll("input")].filter(item => { return item.offsetParent });
+
+                    var index = canfocus.indexOf(event.target) + 1;
+                    if (index == canfocus.length) {
+                        if (index === 2) document.getElementsByClassName("log-in-btn")[0].click();
+                        if (index === 4) document.getElementsByClassName("sign-up-btn")[0].click();
+                        return;
+                    }
+                    if (index > canfocus.length) index = 0;
+                    canfocus[index].focus();
+                }   
+            }
         }
     }
 }   

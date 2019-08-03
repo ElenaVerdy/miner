@@ -153,13 +153,13 @@ app.get("/", (req, res)=>{
         res.render("index", {game: {
             singlePlayer: true,
             width: 10,
-            height: 10
+            height: 10,
+            num: 15
             },
             isLoggedIn: false
         });
     }
 });
-
 
 app.post("/check", (req, res) => {
     
