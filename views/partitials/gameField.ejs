@@ -1,6 +1,6 @@
 <div class="playing-area">
 
-    <div class="table-wrapper">
+    <div class="table-wrapper" fieldSize= <%= game.fieldSize %>>
         <table id = "table" gameId= <%= game.gameId %> cellspacing="0">
             <tbody>
                 <% for (let i = 0; i < game.height; i++) { %>
@@ -67,7 +67,6 @@
 
 </div>
 
-<link rel="stylesheet" href="/css/minesweeper.css">
 <% if (!game.singlePlayer) { %>
     <style>
         .content-page{

@@ -20,6 +20,7 @@ function checkForTheWin(){
     
     return false;
 }
+
 function gameRestart(){
 
     field.forEach(item => {
@@ -45,8 +46,45 @@ function congratulations(){
         if (item.classList.contains("mine")) item.classList.add("mine-found");
     });
     setMinesLeft(0);
-}
 
+    let http = new XMLHttpRequest();
+
+    http.open("POST", `${address}/newRecord`);
+    http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8')
+    http.onreadystatechange = function() {
+        
+        if (this.status === 500) return error(500);
+
+        if (this.readyState !== 4 || this.status !== 200) return;
+        
+        let data = JSON.parse(this.response);
+
+        document.getElementById("gameResults").style.display = "block";
+        document.getElementsByClassName("game-result")[0].innerHTML = "Congratulations";
+        document.getElementsByClassName("records")[0].innerHTML = data.reduce((sum, current, i) => {
+            if (i == 10) sum += `<div class="break">.  .  .</div>`
+
+            return sum + `<div class="record-item ${current.isCurrentGame ? "current-game": ""}">
+                        <div class="record-item_num"><div class="float_right">${current.isCurrentGame ? current.num + 1 : i + 1}</div></div>
+                        <div class="record-item_player1username">${current.playerusername}</div>
+                        <div class="record-item_timems"><div class="float_right">${current.timems.toString().slice(0, -3) + "." + current.timems.toString().slice(-3)}</div></div>
+                        <div class="record-item_date">${new Date(current.created_at).toStringLoc()}</div>
+                    </div>`;
+        }, `<div class="record-item records-header">
+                <div class="record-item_num"></div>
+                <div class="record-item_player1username">Player</div>
+                <div class="record-item_timems">Time</div>
+                <div class="record-item_date">Date</div>
+            </div>
+            <div class="records-wrapper">`) + "</div>";
+    };
+
+    http.send(JSON.stringify({
+        gameType: table.parentElement.getAttribute("fieldSize").toLowerCase(),
+        timems: (999 - timer.current()) * 1000
+    }));
+ 
+}
 
 let tableClickHandler = event => {
 
@@ -175,48 +213,19 @@ function Timer(){
     let current = 999;
     let timerId;
 
-    
-
     this.start = () => {
         timer.innerHTML = current = 999;
         timerId = setInterval(() => timer.innerHTML = current--, 1000)
     };
     this.default = () =>{
         timer.innerHTML = current = 999;
-    }
+    };
     this.stop = () => {
         clearTimeout(timerId);
-    }
+    };
+    this.current = () => current;
 }
 
-if (document.getElementById("authorizationModal")) {
-    (function(){
-        let loginSpan = document.getElementsByClassName("log-in")[0];
-        let signUnSpan = document.getElementsByClassName("sign-up")[0];
-        let startAsGuest = document.getElementsByClassName("start-as-guest")[0];
-        let authModal = document.getElementById("authorizationModal");
-
-        authModal.addEventListener("click", event => {
-            if (!event.target.classList.contains("modal")) return;
-            authModal.style.display = "none"; 
-        }, false);
-    
-    
-        let loginSpanHandler = (boolean) => {
-            authModal.style.display = "block";
-            authorization.setSignUpMode(boolean);
-            document.getElementsByName("login")[0].focus();
-        };
-        
-        loginSpan.onclick = ()=>{loginSpanHandler(false)};
-        signUnSpan.onclick =  ()=>{loginSpanHandler(true)};
-    })();
-
-    [].slice.call(document.getElementsByClassName("description")[0]
-        .getElementsByTagName("a"))
-        .forEach(item => {item.onclick = () => event.preventDefault()});
-
-}
 table.oncontextmenu = ()=>{return false};
 window.ondragstart = ()=>{return false};
 window.onselectstart = ()=>{return false};
@@ -232,6 +241,9 @@ table.oncontextmenu = (event)=>{
 
 document.getElementsByClassName("restart")[0].onclick = gameRestart;
 
+if (document.querySelector(".game-result-btn.delegation_start-game.play-again")){
+    document.querySelector(".game-result-btn.delegation_start-game.play-again").classList.add("delegation_start-game_singleplayer");
+}
 
 width = document.getElementsByTagName("tbody")[0].children[0].children.length; 
 height = document.getElementsByTagName("tbody")[0].children.length;

@@ -1,5 +1,5 @@
 let Authorization = function(){
-    let address = "http://192.168.1.64:3000";
+    let address = "http://192.168.43.106:3000";
     
     let auth = this;
 
@@ -45,20 +45,30 @@ let Authorization = function(){
             DOM.inputs.loginBtn.classList.remove("collapse");
             DOM.other.btnWrapper.classList.add("btn-group");
             DOM.inputs.signUpBtn.classList.remove("full-width");
-
         }
         isSignUpModeOn = boolean;
     };
 
-    const error500 = () => {
-        let errorMsg = document.getElementById("authorizationServerError");
-                    
+    const error = (status) => {
+        let errorMsg = document.getElementById("serverError");
+        
+        switch (status) {
+            
+            case 404: 
+                errorMsg.getElementsByClassName("error-text")[0].innerHTML = "We couldn't find the page your are looking for. Doublecheck the link and try again."
+                break;
+            
+            default:
+                errorMsg.getElementsByClassName("error-text")[0].innerHTML = "Unfortunately, there has been a mistake something went wrong. We're sorry."
+                break;
+        }
+    
         errorMsg.style.display = "block";
         errorMsg.onclick = () => {
             errorMsg.style.display = "none";
         }
     }
-
+    
     let signUpBtnHandler = event => {
         if (isSignUpModeOn) {
             if (!validation.finalValidation()) return;
@@ -69,7 +79,7 @@ let Authorization = function(){
             http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8')
             http.onreadystatechange = function() {
                 
-                if (this.status === 500) return error500();
+                if (this.status === 500) return error(500);
 
                 if (this.status === 444){
                     DOM.inputs.login.onblur({target: DOM.inputs.login});
@@ -99,8 +109,7 @@ let Authorization = function(){
             }));
 
         } else {
-            auth.setSignUpMode(true);
-            event.currentTarget.removeEventListener("click", signUpBtnHandler);    
+            auth.setSignUpMode(true);    
         }
         
     };
@@ -114,7 +123,7 @@ let Authorization = function(){
 
         http.onreadystatechange = function() {
             if (this.status === 401) return badCredentials();
-            if (this.status === 500) return error500();
+            if (this.status === 500) return error(500);
             if (this.readyState !== 4 || this.status !== 200) return;
             
             window.location.reload();
@@ -137,9 +146,47 @@ let Authorization = function(){
         DOM.other.backToLogin.onclick = ()=>{
             validation.clearAlerts();
             auth.setSignUpMode(false);
-            DOM.inputs.signUpBtn.addEventListener("click", signUpBtnHandler);
             return false;
         }
+
+        let loginSpan = document.getElementsByClassName("log-in")[0];
+        let signUnSpan = document.getElementsByClassName("sign-up")[0];
+        let startAsGuest = document.getElementsByClassName("start-as-guest")[0];
+        let authModal = document.getElementById("authorizationModal");
+
+
+        authModal.addEventListener("click", event => {
+            if (!event.target.classList.contains("modal")) return;
+            authModal.style.display = "none"; 
+        }, false);
+    
+    
+        let loginSigninSpanHandler = (setSignUp) => {
+            authModal.style.display = "block";
+            authorization.setSignUpMode(setSignUp);
+            document.getElementsByName("login")[0].focus();
+        };
+        
+        loginSpan.onclick = ()=>{loginSigninSpanHandler(false)};
+        signUnSpan.onclick =  ()=>{loginSigninSpanHandler(true)};
+        startAsGuest.onclick = ()=>{
+            let http = new XMLHttpRequest();
+            http.open("GET", `${address}/GuestRequest`);
+            http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    
+            http.onreadystatechange = function() {
+                if (this.status === 500) return error(500);
+                if (this.readyState !== 4 || this.status !== 200) return;
+                
+                window.location.reload();
+            }
+            http.send();
+        }
+
+        [].slice.call(document.getElementsByClassName("description")[0]
+            .getElementsByTagName("a"))
+            .forEach(item => {item.onclick = () => event.preventDefault()});
+
         
     }
     
@@ -182,14 +229,14 @@ let Authorization = function(){
         this.finalValidation = function(){
             let isAllDataValid = true;
 
-            isAllDataValid = isAllDataValid ? validate(DOM.inputs.login, 
+            isAllDataValid = isAllDataValid && validate(DOM.inputs.login, 
                                                        /^[0-9a-z_]+$/,
                                                        DOM.warnings.badLogin, 
-                                                       "bad-login") : isAllDataValid;
-            isAllDataValid = isAllDataValid ? validate(DOM.inputs.password, 
+                                                       "bad-login");
+            isAllDataValid = isAllDataValid && validate(DOM.inputs.password, 
                                                        /^[0-9a-z]+$/,
                                                        DOM.warnings.badPassword,
-                                                       "bad-password") : isAllDataValid;
+                                                       "bad-password");
                     
             if (!isSignUpModeOn) return isAllDataValid
 
@@ -201,10 +248,10 @@ let Authorization = function(){
                 isAllDataValid = false;
             }
                      
-            isAllDataValid = isAllDataValid ? validate(DOM.inputs.email, 
+            isAllDataValid = isAllDataValid && validate(DOM.inputs.email, 
                                                        /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/,
                                                        DOM.warnings.badEmail,
-                                                       "bad-email") : isAllDataValid;
+                                                       "bad-email");
 
             return isAllDataValid;
         };

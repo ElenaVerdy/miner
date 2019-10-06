@@ -1,126 +1,262 @@
-let address = "http://192.168.1.64:3000";
+let address = "http://192.168.43.106:3000";
 let socket = io.connect(address);
+let multiplayer;
+const timeToAcceptSuggestion = 20;
+
+window.onload = ()=>{
+    let tables = document.getElementsByClassName("game-table");
+    if (tables.length == 10 ) return;
+    for (let i = 0; i < 10 - tables.length; i++) {
+        let newNode = tables[0].cloneNode(true);
+        tables[0].parentElement.appendChild(newNode);
+    }
+}
 
 Date.prototype.toStringLoc = function(){
     let ISO = this.toISOString();
     return ISO.slice(8, 10) + "." + ISO.slice(5,7) + "." + ISO.slice(0,4) + " " + ISO.slice(11,13) + ":" + ISO.slice(14,16);
 }
 
-document.getElementsByClassName("new-game")[0].addEventListener("click", newGameModal);
-
-document.getElementById("new-game-modal").addEventListener("click", event => {
-    if (!event.target.classList.contains("modal")) return;
-    event.currentTarget.style.display = "none"; 
-}, false);
-
-function newGameModal(event){
-
-    document.getElementById("new-game-modal").style.display = "block";
-
-    document.getElementById("game-mode").onchange = event => {
-
-        if (event.currentTarget.value === "multiplayer") {
-            document.getElementsByClassName("for-singleplayer")[0].classList.add("collapse");
-            document.getElementsByClassName("for-multiplayer")[0].classList.remove("collapse");
-        } else {
-            document.getElementsByClassName("for-singleplayer")[0].classList.remove("collapse");
-            document.getElementsByClassName("for-multiplayer")[0].classList.add("collapse");
-        }
+const error = (status) => {
+    let errorMsg = document.getElementById("serverError");
+    
+    switch (status) {
+        
+        case 404: 
+            errorMsg.getElementsByClassName("error-text")[0].innerHTML = "We couldn't find the page your are looking for. Doublecheck the link and try again."
+            break;
+        
+        default:
+            errorMsg.getElementsByClassName("error-text")[0].innerHTML = "Unfortunately, there has been a mistake something went wrong. We're sorry."
+            break;
     }
-}
 
-const error500 = () => {
-    let errorMsg = document.getElementById("authorizationServerError");
-                
     errorMsg.style.display = "block";
     errorMsg.onclick = () => {
         errorMsg.style.display = "none";
     }
 }
 
-document.getElementsByClassName("start-game")[0].onclick = event => {
+const WaitingModal = function (){
+    let modalBody = document.getElementsByClassName("waitingForOtherPlayer")[0];
+    let modalBlock = document.getElementById("waitingForOtherPlayer");
+    let timer = null;
+
+    function ready() {
+        modalBlock.style.display = "block";
+        clearInterval(timer);
+        modalBody.innerHTML = `
+        <h1>Game is going to start in: <span class="start-countdown">1</span></h1>
+        `;    
+        
+        let startCountdown = document.getElementsByClassName("start-countdown")[0];
+        timer = setInterval(()=>{
+
+            if (!document.getElementsByClassName("start-countdown")[0]) {
+                clearInterval(timer);
+                return;                   
+            }
+            if (startCountdown.innerHTML == 1) {
+                hide();    
+            }
+            startCountdown.innerHTML = startCountdown.innerHTML - 1;
+        }, 1000)
+    };
+
+    
+    function lookingForOtherPlayer() {
+        modalBlock.style.display = "block";
+        clearInterval(timer);
+        modalBody.innerHTML = `                    
+        <h1>Looking for other player.</h1>
+        <div class="url-wrapper" hidden>
+            <input type="text" class="url-text">
+            <button class="copy-btn">Click to copy</button>
+        </div>
+        <button class="back-to-tables">back</button>`;
+    };
+        
+    function hide() {
+        modalBlock.style.display = "none";
+        clearInterval(timer);
+    }
+    
+    this.ready = ready;
+    this.lookingForOtherPlayer = lookingForOtherPlayer;
+    this.hide = hide;
+};
+
+let waitingModal = new WaitingModal();
+
+//singleplayer
+document.getElementsByClassName("singleplayer-dropdown-menu")[0].onclick = event => {
+    if (!event.target.classList.contains("singleplayer-menu-item")) return;
+
     let http = new XMLHttpRequest();
 
     http.open("POST", `${address}/newgame`);
     http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8')
     http.onreadystatechange = function() {
         
-        if (this.status === 500) return error500();
-        
+        if (this.status === 500) return error(500);
+
         if (this.readyState !== 4 || this.status !== 200) return;
 
         document.getElementsByClassName("content-page")[0].innerHTML = this.response;
 
+        document.getElementsByClassName("content-page")[0].classList.add("content-page-singleplayer");
+        
         s = document.createElement("script");       
-        if (document.getElementById("game-mode").value === "singleplayer") {
-            s.setAttribute("src", "/js/clientSinglePlayer.js");
-
-        } else {
-            s.setAttribute("src", "/js/clientMultiPlayer.js");
-            document.getElementById("waitingForOtherPlayer").style.display = "block";
-        }
+        s.setAttribute("src", "/js/clientSinglePlayer.js");        
         document.body.appendChild(s);
-        s.onload = () => {
-            if (s.getAttribute("src") == "/js/clientSinglePlayer.js") return;
-            
-            multiPlayerInit(socket, "player1");
-            socket.emit("join", {gameId: document.getElementById("table").getAttribute("gameId"),
-                                 username: document.querySelector(".player1info .username").innerHTML});
-        }
-        
-        document.getElementById("new-game-modal").style.display = "none";
-        
+        clearInterval(fieldUpdateTimer);
+
     };
 
     http.send(JSON.stringify({
-        singlePlayer: document.getElementById("game-mode").value === "singleplayer",
-        forAuthorizedOnly: document.getElementById("forAuthorizedPlayers").checked,
-        fieldSize: document.getElementById("field-size").value
+        singlePlayer: true,
+        fieldSize: event.target.innerHTML
     }));
-
+   
 }
-document.getElementsByClassName("tables")[0].onclick = event => {
-    if (!event.target.classList.contains("join-button")) return;
 
+//multiplayer new game
+document.body.addEventListener("click", event => {
+    if (!event.target.classList.contains("delegation_start-game")) return;
+
+    if (event.target.classList.contains("delegation_start-game_singleplayer")) {
+        document.getElementById("gameResults").style.display = "none";
+        document.getElementsByClassName("restart")[0].click();
+
+        return;
+    }
+
+    const isPrivate = event.target.classList.contains("private-game");
+
+    let http = new XMLHttpRequest();
+
+    http.open("POST", `${address}/newgame`);
+    http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8')
+    http.onreadystatechange = function() {
+        
+        if (this.status === 500) return error(500);
+
+        if (this.readyState !== 4 || this.status !== 200) return;
+
+        let gameId_old = event.target.classList.contains("play-again") ? document.getElementById("table").getAttribute("gameid") : null;
+
+        document.getElementsByClassName("content-page")[0].innerHTML = this.response;
+
+        let gameId = document.getElementById("table").getAttribute("gameId");
+        
+        if (!gameId_old) {
+            
+            waitingModal.lookingForOtherPlayer();
+
+            s = document.createElement("script");       
+            s.setAttribute("src", "/js/clientMultiPlayer.js");
+
+            document.body.appendChild(s);
+            s.onload = () => {
+        
+                clearInterval(fieldUpdateTimer);
+                multiplayer = new Multiplayer(socket, "player1");
+                socket.emit("join", { gameId, username: document.querySelector(".player1info .username").innerHTML });
+
+            }
+
+            if (!isPrivate) return;
+
+            document.getElementsByClassName("url-wrapper")[0].removeAttribute("hidden");
+            document.getElementsByClassName("url-text")[0].value = `${address}/private/${btoa(gameId)}`
+
+            document.getElementsByClassName("copy-btn")[0].onclick = () => {
+            
+                let copyText = document.getElementsByClassName("url-text")[0];
+                copyText.select();
+                document.execCommand("copy");
+            
+            }
+                
+        } else {
+
+            multiplayer.startOver();
+            if (isPrivate) {
+                socket.emit("playAgain", {gameId, gameId_old});
+            } else {
+                waitingModal.lookingForOtherPlayer();
+                document.getElementById("play-again-suggestion").style.display = "none";
+            }
+
+            socket.emit("join", { gameId, username: document.querySelector(".player1info .username").innerHTML });
+        
+        }
+                      
+    };
+
+    http.send(JSON.stringify({
+        singlePlayer: false,
+        private: isPrivate,
+        playAgain: event.target.classList.contains("play-again")
+    }));
+   
+})
+
+//multiplayer join game
+document.body.addEventListener("click", event => {
+    if (!event.target.classList.contains("delegation_join-button")) return;
+    
     let http = new XMLHttpRequest();
 
     http.open("POST", `${address}/join`);
     http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8')
     http.onreadystatechange = function() {
         
-        if (this.status === 500) return error500();
+        if (this.status === 500) return error(500);
         
+        if (this.readyState === 3 && this.status === 404) {
+            return error(404);
+        }
         if (this.readyState !== 4 || this.status !== 200) return;
 
         document.getElementsByClassName("content-page")[0].innerHTML = this.response;
-
-        s = document.createElement("script");       
-
-        s.setAttribute("src", "/js/clientMultiPlayer.js");
-        document.getElementById("waitingForOtherPlayer").style.display = "block";
-
-        document.body.appendChild(s);
-        s.onload = () => {
-            multiPlayerInit(socket);
-
-            socket.emit("join", {gameId: event.target.getAttribute("gameId"),
-                                 username: document.querySelector(".player2info .username").innerHTML});
         
-            if (event.target.classList.contains("continue")) {
-                socket.emit("getFieldInfo", {gameId: event.target.getAttribute("gameId")})   
-            }
+        if (!event.target.classList.contains("play-again")) {
 
+            s = document.createElement("script");       
+            s.setAttribute("src", "/js/clientMultiPlayer.js");
+    
+            document.body.appendChild(s);
+            s.onload = () => {
+                multiplayer = new Multiplayer(socket);
+                clearInterval(fieldUpdateTimer);
+    
+                socket.emit("join", {gameId: event.target.getAttribute("gameId"),
+                                     username: document.querySelector(".player2info .username").innerHTML});
+            
+                if (event.target.classList.contains("continue")) {
+                    socket.emit("getFieldInfo", {gameId: event.target.getAttribute("gameId")})   
+                }
+            }
+    
+        } else {            
+            multiplayer.startOver();
+            socket.emit("join", {gameId: event.target.getAttribute("gameId"),
+                                        username: document.querySelector(".player2info .username").innerHTML});                
+        
         }
         
-        document.getElementById("new-game-modal").style.display = "none";
+        waitingModal.lookingForOtherPlayer();
         
     };
 
     http.send(JSON.stringify({
         gameId: event.target.getAttribute("gameId")
     }));
-}
+})
+
 function updatePlayersInfo(playersInfo) {
+    
     if (playersInfo.player1) { 
         document.querySelector(".player1info .avatar").setAttribute("src", playersInfo.player1.avatar);
         document.querySelector(".player1info .rank").innerHTML = playersInfo.player1.rank;
@@ -142,28 +278,211 @@ socket.on("playersInfoUpdated", data=>{updatePlayersInfo(data)});
 socket.on("ready", data => {
     updatePlayersInfo(data);
 
-    document.getElementsByClassName("waitingForOtherPlayer")[0].innerHTML = `
-    <h1>Game is going to start in: <span class="start-countdown">1</span></h1>
-    `;
-    let startCountdown = document.getElementsByClassName("start-countdown")[0];
-    let timer = setInterval(()=>{
-        if (!document.getElementsByClassName("start-countdown")[0]) {
-            clearInterval(timer);
-            return;                   
+    document.getElementById("play-again-suggestion").style.display = "none";
+    
+    waitingModal.ready();
+});
+(function(){
+    let playAgainSuggestionText;
+
+    socket.on("replayDeclined", data => {
+        if (playAgainSuggestionText){
+
+            timerHTML = playAgainSuggestionText.getElementsByClassName("redirection-countdown")[0];
+            if (timerHTML) {
+                timerHTML.innerHTML = 1;
+            }
+        } else {
+            error(500);
         }
-        if (startCountdown.innerHTML == 1) {
-            clearInterval(timer);
-            document.getElementById("waitingForOtherPlayer").style.display = "none";    
+    });
+
+    socket.on("playAgainSuggestion", data => {
+
+        let isInitiator = data.initiator === socket.id;
+        let username, timerHTML, timer;
+
+        document.getElementById("gameResults").style.display = "none";
+        document.getElementById("play-again-suggestion").style.display = "block";
+
+        playAgainSuggestionText = isInitiator ? document.getElementsByClassName("play-again-suggestion_waiting")[0]
+                                            : document.getElementsByClassName("play-again-suggestion_answer")[0];
+
+        let playAgainBtn = document.getElementsByClassName("game-result-btn_play-again")[0];
+
+        if (isInitiator) {
+            playAgainBtn.setAttribute("disabled", "disabled");
+        } else {
+            playAgainBtn.innerHTML = "join";
+            playAgainBtn.setAttribute("gameId", data.gameId);
+            playAgainBtn.classList.add("delegation_join-button");
         }
-        startCountdown.innerHTML = startCountdown.innerHTML - 1;
-    }, 1000)
-})
+
+        playAgainSuggestionText.classList.remove("collapse");
+        username = playAgainSuggestionText.getElementsByClassName("username")[0];
+        username.innerHTML = data.initiatorUsername;
+        
+        timerHTML = playAgainSuggestionText.getElementsByClassName("redirection-countdown")[0];
+        timerHTML.innerHTML = timeToAcceptSuggestion;
+
+        timer = setInterval(()=>{
+            if (!document.getElementsByClassName("redirection-countdown")[0]) {
+                clearInterval(timer);
+                return;                   
+            }
+            if (timerHTML.innerHTML == 1) {
+                clearInterval(timer);
+
+                if (isInitiator) {
+                    
+                    let newGameBtn = document.createElement("button");
+                    newGameBtn.classList.add("delegation_start-game", "public-game", "play-again");
+                    newGameBtn.style.display = "none";
+                    document.body.appendChild(newGameBtn);
+
+                    newGameBtn.dispatchEvent(new Event("click", {bubbles: true}));
+                    
+                    document.getElementById("play-again-suggestion").style.display = "none";
+                } else {
+                    window.location.href = `${address}`;
+                }
+            }
+            timerHTML.innerHTML = timerHTML.innerHTML - 1;
+        }, 1000)
+    });
+})()
 socket.on("playerLeftBeforeTheGameStarted", data => {
     updatePlayersInfo(data);
+    waitingModal.lookingForOtherPlayer();
+});
 
-    document.getElementsByClassName("waitingForOtherPlayer")[0].innerHTML = `
-        <h1>Looking for other player.</h1>
-        <button class="back-to-tables">back</button>
-    `;
-})
+if (document.getElementsByClassName("private-game-by-id").length) {
+    document.getElementsByClassName("private-game-by-id")[0].dispatchEvent(new Event("click", {bubbles: true}));
 
+    if (document.getElementsByClassName("private-game-by-id").length) {
+        document.getElementsByClassName("private-game-by-id")[0].parentElement.parentElement
+                .removeChild(document.getElementsByClassName("private-game-by-id")[0].parentElement);
+    }
+
+    history.pushState(null, "minesweeper", "/")
+}
+const tables = {
+    tables: Array.from(document.querySelectorAll(".game-table")),
+    nums: Array.from(document.querySelectorAll(".num .float_right")),
+    joinBtn: Array.from(document.querySelectorAll(".join-button-wrapper")),
+    
+    player1: {
+        continuebtn: Array.from(document.querySelectorAll(".player1wrapper .continue")),
+        name: Array.from(document.querySelectorAll(".player1name")),
+        rank: Array.from(document.querySelectorAll(".player1wrapper .rank")),
+        rankWrapper: Array.from(document.querySelectorAll(".player1wrapper .rank-wrapper"))
+    },
+    player2: {
+        wrapper: Array.from(document.querySelectorAll(".player2wrapper")),
+        continuebtn: Array.from(document.querySelectorAll(".player2wrapper .continue")),
+        name: Array.from(document.querySelectorAll(".player2name")),
+        rank: Array.from(document.querySelectorAll(".player2wrapper .rank")),
+        rankWrapper: Array.from(document.querySelectorAll(".player2wrapper .rank-wrapper"))
+    }
+}
+
+function updateTables(tablesInfo, page, username, pagesTotal){
+    if (!document.getElementsByClassName("tables").length) return;
+
+    tablesInfo.forEach((table, i)=>{
+        tables.tables[i].removeAttribute("hidden");
+
+        tables.nums[i].innerHTML = table.tableNum;
+
+        if (table.isGameOn && !table.player1.isInGame && table.player1.username === username) {
+            tables.player1.rankWrapper[i].setAttribute("hidden", "hidden");
+            tables.player1.name[i].setAttribute("hidden", "hidden");            
+            tables.player1.continuebtn[i].removeAttribute("hidden");
+            tables.player1.continuebtn[i].setAttribute("gameId", table.gameId);
+        } else {
+            tables.player1.continuebtn[i].setAttribute("hidden", "hidden");
+            tables.player1.rankWrapper[i].removeAttribute("hidden");
+            tables.player1.name[i].removeAttribute("hidden");
+            tables.player1.name[i].innerHTML = table.player1.name || table.player1.username;
+            tables.player1.rank[i].innerHTML = table.player1.rank;
+        }
+        
+        
+        if (table.player2) {
+            tables.player2.wrapper[i].removeAttribute("hidden");
+
+            if (table.isGameOn && !table.player2.isInGame && table.player2.username === username) {
+                tables.player2.rankWrapper[i].setAttribute("hidden", "hidden");
+                tables.player2.name[i].setAttribute("hidden", "hidden");            
+                tables.player2.continuebtn[i].removeAttribute("hidden");
+                tables.player2.continuebtn[i].setAttribute("gameId", table.gameId);
+            } else {
+                tables.player2.continuebtn[i].setAttribute("hidden", "hidden");
+                tables.player2.rankWrapper[i].removeAttribute("hidden");
+                tables.player2.name[i].removeAttribute("hidden");
+                tables.player2.name[i].innerHTML = table.player2.name || table.player2.username;
+                tables.player2.rank[i].innerHTML = table.player2.rank;
+            }
+        } else {
+            tables.player2.wrapper[i].setAttribute("hidden", "hidden");
+            tables.joinBtn[i].removeAttribute("hidden");
+            tables.joinBtn[i].children[0].setAttribute("gameId", table.gameId)
+        }
+    });
+
+    if (tablesInfo.length < 10) {
+        for (let i = 0; i < 10 - tablesInfo.length; i++ ) {
+            tables.tables[9 - i].setAttribute("hidden", "hidden");
+        }
+    }
+    paginationCurrent.innerHTML = page || 1;
+    page === 0 || page === 1 ? document.getElementsByClassName("pagination_prev")[0].parentElement.classList.add("disabled")
+               : document.getElementsByClassName("pagination_prev")[0].parentElement.classList.remove("disabled");
+
+    page === pagesTotal ? document.getElementsByClassName("pagination_next")[0].parentElement.classList.add("disabled")
+                        : document.getElementsByClassName("pagination_next")[0].parentElement.classList.remove("disabled");
+           
+}
+
+const paginationCurrent = document.getElementsByClassName("pagination_active")[0];
+document.getElementsByClassName("pagination_prev")[0].onclick = event => {
+    if (event.target.classList.contains("disabled")) return; 
+
+    paginationCurrent.innerHTML = +paginationCurrent.innerHTML - 1;
+    getTablesByPage(+paginationCurrent.innerHTML);
+}
+
+document.getElementsByClassName("pagination_next")[0].onclick = event => {
+    if (event.target.classList.contains("disabled")) return; 
+
+    paginationCurrent.innerHTML = +paginationCurrent.innerHTML + 1;
+    getTablesByPage(+paginationCurrent.innerHTML);
+}
+
+function getTablesByPage(page) {
+    let http = new XMLHttpRequest();
+
+    http.open("GET", `${address}/tablesInfo?page=${page}`);
+    http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8')
+    http.onreadystatechange = function() {
+        
+        if (this.status === 500) return error(500);
+        
+        if (this.readyState !== 4 || this.status !== 200) return;
+
+        let response = JSON.parse(this.response); 
+        updateTables(response.tables, response.page, response.username, response.pagesTotal)
+    }
+    http.send();
+
+}
+
+getTablesByPage(1);
+
+let fieldUpdateTimer = setInterval(()=>{
+    getTablesByPage(+paginationCurrent.innerHTML);
+}, 1000);
+
+document.getElementsByClassName("singleplayer-dropdown-toggle")[0].onclick = event => {
+    document.getElementsByClassName("singleplayer-dropdown-menu")[0].classList.toggle("collapse");
+}

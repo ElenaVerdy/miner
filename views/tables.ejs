@@ -6,49 +6,16 @@
     <title>Сапёр</Title>
     <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/css/common.css">
-    <link rel="stylesheet" type="text/css" href="/css/tables.css">    
+    <link rel="stylesheet" type="text/css" href="/css/tables.css">
+    <link rel="stylesheet" href="/css/minesweeper.css">
 </head>
 <body>
-    <div class="modal" id="new-game-modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-body new-game-body">
-                    <h1>Settings</h1>
-                    <div class="game-mode-wrapper">
-                        <span>Choose game mode:</span>
-                        <select name="game-mode" id="game-mode">
-                            <option value="multiplayer">Multiplayer</option>
-                            <option value="singleplayer">Singleplayer</option>
-                        </select>
-                    </div>
-                    <div class="for-singleplayer collapse">
-                        <div class="game-mode-wrapper">
-                            <span>Choose field-size:</span>
-                            <select name="field-size" id="field-size">
-                                <option value="easy">Easy</option>
-                                <option value="medium">Medium</option>
-                                <option value="hard">Hard</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="for-multiplayer">
-                        <div class="game-mode-wrapper">
-                            <span>For authorized players only:</span>
-                            <input type="checkbox" name="forAuthorizedPlayers" id="forAuthorizedPlayers">
-                        </div>
-                    </div>
-                    <input type="button" class="start-game" value="start-game">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal" id="authorizationServerError" tabindex="-1" role="dialog">
+    <div class="modal" id="serverError" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-body serverError">
                     <h1>That's not so good</h1>
-                    <span class="text-justify">Unfortunately, there has been a mistake something went wrong. We're sorry.
-                    </span>
+                    <span class="text-justify error-text"></span>
                 </div>
             </div>
         </div>
@@ -58,6 +25,10 @@
             <div class="modal-content">
                 <div class="modal-body waitingForOtherPlayer">
                     <h1>Looking for other player.</h1>
+                    <div class="url-wrapper" hidden>
+                        <input type="text" class="url-text">
+                        <button class="copy-btn">Click to copy</button>
+                    </div>
                     <button class="back-to-tables">back</button>
                 </div>
             </div>
@@ -68,10 +39,63 @@
             <div class="modal-content">
                 <div class="modal-body gameResults">
                     <h1 class="game-result"></h1>
+                    <div class="ranks-change">
+                            
+                        <div class="username-wrapper ranks-change-info_username-wrapper ranks-change-info_username-wrapper-player1">
+                            <h2 class="username ranks-change-info_username ranks-change-info_username-player1"></h2>
+                        </div>
+
+                        <div class="ranks-change-info">                        
+                            <div class="ranks-change-info_changes ranks-change-info_changes_player1">
+                                <div class="ranks-change-info_touches-ico ranks-change-info_touches-ico-player1 player1touches"></div>
+                                <div class="ranks-change-info_touches ranks-change-info_touches_player1"></div>
+                                <div class="separator ranks-change-info_separator"></div>
+                                <span class="rank-change_added rank-change_added_player1"></span>
+                                <span class="rank-subtracted rank-subtracted_player1"></span>    
+                            </div>
+                            
+                            <div class="rank-star ranks-change-info_rank-start"></div>
+                            
+                            <div class="ranks-change-info_changes ranks-change-info_changes_player2">
+                                <span class="rank-change_added rank-change_added_player2"></span>
+                                <span class="rank-subtracted rank-subtracted_player2"></span>    
+                                <div class="separator ranks-change-info_separator"></div>                                
+                                <div class="ranks-change-info_touches ranks-change-info_touches_player2"></div>
+                                <div class="ranks-change-info_touches-ico ranks-change-info_touches-ico-player2 player2touches"></div>
+                            </div>
+                        </div>
+
+                        <div class="username-wrapper ranks-change-info_username-wrapper ranks-change-info_username-wrapper-player2">
+                            <h2 class="username ranks-change-info_username ranks-change-info_username-player2"></h2>
+                        </div>
+                        
+                    </div>
                     <div class="records"></div>
-                    <div class="btn-group btn-block btn-wrapper">
-                        <button type="button" class="btn btn-outline-success">Play again</button>
-                        <button type="button" class="btn btn-outline-success">Tables</button>
+                    <div class="btn-group btn-wrapper">
+                        <button type="button" class="btn btn-outline-success game-result-btn delegation_start-game private-game play-again">Play again</button>
+                        <button type="button" class="btn btn-outline-success game-result-btn">Tables</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="play-again-suggestion" role="dialog">
+        <div class="modal-dialog modal-dialog-centered modal-wide" role="document">
+            <div class="modal-content">
+                <div class="modal-body play-again-suggestion">
+                    <div class="play-again-suggestion_text play-again-suggestion_waiting collapse">
+                        You suggested to play another game with <span class="username username_waiting teammate-username"></span>. 
+                        If your invitation would be accepted your game will start immidietly. Otherwise you will 
+                        be redirected to a public game in <span class="redirection-countdown">15</span> seconds.  
+                    </div>
+                    <div class="play-again-suggestion_text play-again-suggestion_answer collapse">
+                        <span class="username username_answer teammate-username"></span> suggested to play another game with you. 
+                        If you dont mind it press join button. Otherwise in 
+                        <span class="redirection-countdown">15</span> seconds you will be redirected to tables.
+                    </div>
+                    <div class="btn-group btn-wrapper">
+                        <button type="button" class="btn btn-outline-success game-result-btn game-result-btn_play-again">Play again</button>
+                        <button type="button" class="btn btn-outline-success game-result-btn game-result-btn_back">Tables</button>
                     </div>
                 </div>
             </div>
@@ -93,54 +117,72 @@
                     <div class="userInfo">
                         <div class="username-wrapper">
                             <h2 class="username"><%= name || username %></h2>
-                            <input class="change-name-input collapse" type="text" >
-                            <input class="change-name" type="button">
                         </div>
                         <div class="rank-wrapper">
                             <div class="rank-star"></div>
                             <span class="rank"><%= rank %></span>    
                         </div>
                     </div>
+                    <div class="start-game-wrapper">
+                        <div class="start-game">
+                            <div class="start-game-btns multiplayer">
+                                <button type="button" class="btn btn-success start-game-btn start-game-btn-half delegation_start-game public-game">Public game</button>
+                                <button type="button" class="btn btn-info start-game-btn start-game-btn-half delegation_start-game private-game">Private game</button>
+                            </div>
+                            <div class="start-game-btns dropdown singleplayer-dropdown">
+                                <a class="btn btn-secondary singleplayer-dropdown-toggle start-game-btn start-game-btn-full" href="#" role="button" >
+                                    Single player
+                                </a>          
+                                <div class="dropdown-menu singleplayer-dropdown-menu collapse" aria-labelledby="dropdownMenuLink">
+                                    <a class="dropdown-item singleplayer-menu-item " href="#">Easy</a>
+                                    <a class="dropdown-item singleplayer-menu-item" href="#">Medium</a>
+                                    <a class="dropdown-item singleplayer-menu-item" href="#">Hard</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="content-main">
-                    <input class="new-game" type="button">
                     <div class="tables">
-                        <% tables.forEach((table, i)=>{ %>
-                            <div class="game-table">
-                                <div class="num"><div class="float_right"><%= i + 1 %></div></div>
+                            <% if (privateGame) { %>
+                                <div class="join-button-wrapper" hidden>
+                                    <button class="delegation_join-button join-button private-game-by-id" gameId=<%= gameId %>>join</button>
+                                </div>
+                            <% }; %>
+                        <% for (let i = 0; i < 10; i++) {%>
+                            <div class="game-table" hidden>
+                                <div class="num"><div class="float_right"></div></div>
                                 <div class="separator"></div>
                                 <div class="game-info">
                                     <div class="player1wrapper player-info">
-                                        <% if (table.isGameOn && !table.player1.isInGame && table.player1.username === username) {%>
-                                            <button class="continue join-button" gameId=<%= table.gameId %> >Back to the game</button>
-                                        <% } else { %>
-                                            <div class="player1name"><%= table.player1.name || table.player1.username %></div>
-                                            <div class="rank-wrapper">
-                                                <div class="rank-star rank-star-mini"></div>
-                                                <span class="rank rank-dark"><%= table.player1.rank %></span>    
-                                            </div>
-                                        <% }; %>
+                                        <button class="continue delegation_join-button join-button" hidden gameId="" >Back to the game</button>
+                                        <div class="player1name"></div>
+                                        <div class="rank-wrapper">
+                                            <div class="rank-star rank-star-mini"></div>
+                                            <span class="rank rank-dark"></span>    
+                                        </div>
                                     </div>
-                                    <% if (table.player2) {%>
-                                        <div class="player2wrapper player-info">
-                                            <% if (table.isGameOn && !table.player2.isInGame && table.player2.username === username) {%>
-                                                <button class="continue join-button" gameId=<%= table.gameId %> >Back to the game</button>
-                                            <% } else { %>
-                                            <div class="player2name"><%= table.player2.name || table.player2.username %></div>
-                                            <div class="rank-wrapper">
-                                                <span class="rank rank-dark"><%= table.player2.rank %></span>
-                                                <div class="rank-star rank-star-mini"></div>
-                                            </div>
-                                            <% }; %>
+                                    <div class="player2wrapper player-info">
+                                        <button class="continue delegation_join-button join-button" hidden gameId="" >Back to the game</button>
+                                        <div class="player2name"></div>
+                                        <div class="rank-wrapper">
+                                            <span class="rank rank-dark"></span>
+                                            <div class="rank-star rank-star-mini"></div>
                                         </div>
-                                    <% } else { %>
-                                        <div class="join-button-wrapper">
-                                            <button class="join-button" gameId=<%= table.gameId %> >join</button>
-                                        </div>
-                                    <% } %>
+                                    </div>
+                                    <div class="join-button-wrapper" hidden>
+                                        <button class="delegation_join-button join-button" gameId="" >join</button>
+                                    </div>
                                 </div>
                             </div> 
-                        <% }) %>
+                        <% }; %>
+                    </div>
+                    <div class="pagination-wrapper">
+                        <ul class="pagination">
+                            <li class="page-item"><a href="#" class="page-link pagination_prev">Back</a></li>
+                            <li class="page-item"><a href="#" class="page-link pagination_active">0</a></li>
+                            <li class="page-item"><a href="#" class="page-link pagination_next">Next</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>

@@ -5,12 +5,17 @@
     flex-direction: column;
     width: 70vw;
     min-width: 300px;
-    height: 80vh;
+    height: 90vh;
     background-color: sandybrown;
     border-radius: 10px;
     border: solid darkolivegreen;
     border-width:4px;
     text-overflow: ellipsis;
+}
+.content-page-singleplayer{
+    width: auto;
+    min-width: auto;
+    height: auto;
 }
 .content-header{
     border-radius: 5px 5px 0px 0px;
@@ -37,16 +42,20 @@
     border: solid 2px gold;
     border-radius: 5px;
 }
-.username-wrapper, .rank-wrapper, .game-mode-wrapper, .tables, .player-info, .join-button-wrapper{
+.username-wrapper, .rank-wrapper, .game-mode-wrapper, .tables, .player-info, .join-button-wrapper, .pagination-wrapper{
     display: flex;
     align-items: center;
 }
 .username{
-    width: 150px;
+    width: 190px;
     display: block;
     color: goldenrod;
     margin-right: 5px;
     font-size: 1.5em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-right: 0px;
 }
 .rank-star{
     width: 15px;
@@ -54,7 +63,37 @@
     background-image: url("/images/rank-star.png");
     background-size: cover;
     margin-right: 5px;
-
+}
+.player1touches{
+    background-image: url("/images/player1touch.png");
+}
+.player2touches{
+    background-image: url("/images/player2touch.png");
+}
+.ranks-change-info_touches-ico{
+    width: 20px;
+    height: 20px;
+    background-size: cover;
+    border: 0px;
+    color: rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0);
+}
+.ranks-change-info_touches{
+    font-size: 1.3em;
+    margin: 0px 3px;
+}
+.rank-subtracted{
+    font-size: 1.3em;
+    margin: 0px 3px;
+    color: red;
+}
+.rank-added{
+    margin: 0px 3px;
+    font-size: 1.3em;
+    color: green;
+}
+.ranks-change-info_username-player2{
+    text-align: end;
 }
 .rank{
     font-weight: 700;
@@ -71,6 +110,15 @@
     border: 0px;
     background-color: rgba(0, 0, 0, 0);
 }
+.change-name-input{
+    background-color: transparent;
+    border-color: transparent;
+    border-bottom: solid gold 2px;
+    width: 150px;
+    margin: 0px 5px 8px 0px;
+    color: white;
+    font-weight: 500;
+}
 select{
     margin-left: 10px;
     border: 0px;
@@ -78,8 +126,8 @@ select{
 .tables{
     display: flex;
     flex-direction: column;
-    justify-content: center;
     padding-right: 2px;
+    flex: 10 auto;
 }
 .game-table{
     display: flex;
@@ -125,19 +173,16 @@ select{
     max-width: 10px;
     min-width: 10px
 }
-.record-item_gameId{
-    min-width: 70px
-}
 .record-item_player1username{
-    max-width: 100px;
-    min-width: 100px;
+    max-width: 110px;
+    min-width: 110px;
 }
 .record-item_player2username{
-    max-width: 100px;
-    min-width: 100px
+    max-width: 110px;
+    min-width: 110px
 }
 .record-item_timems{
-    width: 40px;
+    width: 60px;
 }
 .break{
     font-size: -webkit-xxx-large;
@@ -147,7 +192,6 @@ select{
 .records-header{
     font-weight: bold;
 }
-
 .record-item_date{
     min-width: 120px;
     max-width: 120px;
@@ -161,19 +205,110 @@ select{
     background-color: rgba(255,25,0,0.2)
 }
 .records{
-    margin:20px;
+    margin:0px 20px 20px 10px;
 }
 .game-result{
     text-align: center;
 }
+.game-result-btn{
+    width: 100px;
+}
+.gameResults{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.ranks-change{
+    width: 80%;
+    margin: 20px 20px 20px 20px;
+    flex-direction: row;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.ranks-change-info, .ranks-change-info_changes{
+    display: flex;
+    align-items: center;
+    flex: 10 auto;
+}
+.teammate-username{
+    display: inline;
+    font-size: inherit;
+    text-overflow: initial;
+}
+.play-again-suggestion_text{
+    white-space: normal;
+    font-size: x-large;
+}
 .float_right{
     float: right;
+}
+.pagination-wrapper {
+    justify-content: center;
+}
+.pagination{
+    margin: 7px;
 }
 .modal-wide{
     max-width: 630px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.page-link {
+    padding: 3px 12px;
+}
+.start-game-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex: 1;
+}
+.ranks-change-info{
+    display: flex;
+}
+.ranks-change-info_player2{
+    flex-direction: row-reverse;
+}
+.ranks-change-info_separator{
+    height: 21px;
+}
+.ranks-change-info_rank-start{
+    margin: 0;
+}
+.ranks-change-info_changes_player2{
+    justify-content: flex-end;
+}
+.ranks-change-info_username{
+    font-size: 1.2em;
+    width: 140px;
+}
+.start-game{
+    margin: 3px;
+}
+.start-game-btns{
+    display: flex;
+}
+.start-game-btn{
+    margin: 3px;
+}
+.start-game-btn-half{
+    padding: 3px 10px;
+}
+.singleplayer-dropdown-menu{
+    min-width: 120px;
+    background-color: white;
+}
+.singleplayer-menu-item:hover{
+    background-color: lightgray;
+}
+.start-game-btn-full{
+    flex: 1;
+    padding: 0px;
+    border: 1px solid lightgrey;
+    background-color: transparent;
+    color: lightgrey;
 }
 ::-webkit-scrollbar {
     width: 6px;
@@ -185,8 +320,43 @@ select{
     background-color: rgba(0,0,0,0.4);
     border-radius: 5px;
 }
-@media(max-width: 440px) {
+@media(max-width: 400px) {
+    .username{
+        width: 106px;
+        font-size: 1.2em;
+    }
+}
+@media(max-width: 500px) {
+    .rank{
+        font-weight: 400;
+    }
+    .avatar{
+        height: 50px;
+    }
+    .avatar-wrapper{
+        margin: 6px;
+    }
+    .userInfo{
+        display: inline;
+    }
+    .content-page{
+        height: 90vh;
+    }
+    .content-page-singleplayer{
+        height: auto;
+    }
+}
+@media(max-width: 750px) {
     .content-page{
         width: 95%;
+    }
+    .content-page-singleplayer{
+        width: auto;
+    }
+    .start-game-btns{
+        flex-direction: column;
+    }
+    .start-game-btn-half{
+        padding: 0px 10px;
     }
 }

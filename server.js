@@ -1,4 +1,4 @@
-const domain = "192.168.1.64";
+const domain = "192.168.43.106";
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const app = express();
@@ -96,7 +96,11 @@ app.use((req, res, next)=>{
 
         myEmitter.once(`found${token}`, result=>{
 
-            if (result.error) return res.sendStatus(500);
+            if (result.error) {
+                next();
+                console.log("error");
+                return res.sendStatus(500);
+            }
             if (result.length) {
                 req.userInfo = {
                     isLoggedIn: true,
@@ -110,7 +114,6 @@ app.use((req, res, next)=>{
             }
             next();
         });
-    
     } else if (req.cookies.guest_token) {
         req.userInfo = {
             isGuest: true,
@@ -123,7 +126,6 @@ app.use((req, res, next)=>{
     } else {
         next();
     }
-
 });
 
 function deleteCookies(res, cookieNames) {
@@ -141,12 +143,13 @@ app.get("/", (req, res)=>{
 
         res.render("tables", {
             isLoggedIn: req.userInfo.isLoggedIn,
-            isVuest: req.userInfo.isGuest,
+            isGuest: req.userInfo.isGuest,
             username: req.userInfo.username,
             name: req.userInfo.name,
             rank: req.userInfo.rank,
             avatar: req.userInfo.avatar || "/images/profile-pic-placeholder.png",
-            tables: multiplayer.getTables()
+            privateGame: false,
+            gameId: null
         });
     
     } else {
@@ -156,10 +159,76 @@ app.get("/", (req, res)=>{
             height: 10,
             num: 15
             },
-            isLoggedIn: false
+            isLoggedIn: false,
+            forceToLogIn: false
         });
     }
 });
+
+app.get("/champions-table", (req, res) => {
+    res.render("champions-table", {isLoggedIn: req.userInfo && req.userInfo.isLoggedIn});
+})
+
+app.get("/records/:table", (req, res) => {
+    pool.connect((err, client, release) => {
+        let query;
+        let page = req.query.page;
+
+        if (req.query.param) {
+            query = `SELECT * FROM ${escape(req.params.table)} WHERE gametype = '${escape(req.query.param)}' ORDER BY timems ASC ;`;
+        } else {
+            query = `SELECT * FROM ${escape(req.params.table)} ORDER BY ${req.params.table == "users" ? "rank DESC" : "timems ASC"}`;
+        }
+
+        if (err) {
+            console.log(err)
+            return res.status(500).send("There has been a server error. Please reload the page and try again!");
+        }
+        client.query(query, (err, result) => {
+
+            release();
+
+            if (err) {
+                console.log(err)
+                return res.status(500).send("There has been a server error. Please reload the page and try again!");
+            }
+
+            res.send(JSON.stringify({
+                records:    result.rows.slice((page - 1) * 20, page * 20),
+                page:       page,
+                username:   req.userInfo.username,
+                pagesTotal: Math.ceil(result.rows.length / 10)
+            }));
+
+        })
+    })
+    
+})
+
+app.get("/tablesInfo", (req, res) => {
+    let tables = multiplayer.getTablesForUser(req.userInfo.username);
+    let page = +req.query.page;
+
+    while (Math.ceil(tables.length / 10) < page) page--;
+
+    res.send(JSON.stringify({
+        tables: tables.slice((page - 1) * 10, page * 10).map(item=>{
+            return {
+                finishTime: item.finishTime,
+                gameId: item.gameId,
+                isGameOn: item.isGameOn,
+                player1: item.player1,
+                player2: item.player2,
+                startTime: item.startTime,
+                tableNum: item.tableNum
+            };
+        }),
+        page:       page,
+        username:   req.userInfo.username,
+        pagesTotal: Math.ceil(tables.length / 10)
+    }));
+
+})
 
 app.post("/check", (req, res) => {
     
@@ -282,7 +351,7 @@ app.post("/login", (req, res) => {
 
             client.query(query, (err, result) => {
 
-                done()
+                done();
 
                 if (err) {
                     reject();
@@ -313,8 +382,8 @@ app.post("/login", (req, res) => {
                             domain: domain,
                             maxAge: 1000 * 60 * 60 * 24 * 30,
                             path: "/"
-                        })
-                
+                        });
+                        
                         res.sendStatus(200);        
                     })
               
@@ -329,12 +398,29 @@ app.post("/login", (req, res) => {
     })
 })
 
-app.post("/join", (req, res) => {
+app.get("/GuestRequest", (req, res) => {
+    if (req.userInfo && req.userInfo.isLoggedIn) res.status(200).send("You are already logged in!");
 
+    let guest_token = crypto.randomBytes(16)
+    .toString('hex') 
+    .slice(0, 32);
+
+    res.cookie("guest_token", guest_token, {
+        domain: domain,
+        maxAge: 1000 * 60 * 60 * 24,
+        path: "/"
+    });
+
+    res.send();
+})
+
+app.post("/join", (req, res) => {
     var table = multiplayer.joinGame(req.userInfo, req.body.gameId);
     
-    if (!table) res.status(404).send("The game wasn't found. It probably ended, please refresh the page.")
-    
+    if (!table) {
+        res.status(404).send("The game wasn't found. It probably ended, please refresh the page.")
+        return;
+    }
     var game = {
         singlePlayer: false,
         width: 50,
@@ -342,6 +428,8 @@ app.post("/join", (req, res) => {
         num: 180,
         gameId: table.gameId
     };
+
+    game.fieldSize = "multiplayer_large";
 
     res.render("partitials/gameField", {
         game: game,
@@ -358,17 +446,17 @@ app.post("/newgame", (req, res) => {
 
     if (game.singlePlayer) {
         switch (req.body.fieldSize) {
-            case "easy" :
+            case "Easy" :
                 game.width = game.height = 8;
                 game.num = 10;
                 break;
             
-            case "medium" :
+            case "Medium" :
                 game.width = game.height = 16;
                 game.num = 40;                
                 break;
             
-            case "hard" :
+            case "Hard" :
                 game.width = 30;
                 game.height = 16;
                 game.num = 99;                                
@@ -376,11 +464,13 @@ app.post("/newgame", (req, res) => {
         }
     } else {
         game.width = 50;
-        game.height = 18;
+        game.height = 16;
         game.num = 180;                
     }
-    
-    game.gameId = game.singlePlayer ? undefined : multiplayer.createNewTable(req.userInfo).gameId;
+
+    game.gameId = game.singlePlayer ? undefined : multiplayer.createNewTable(req.userInfo, req.body.private).gameId;
+
+    game.fieldSize = req.body.fieldSize;
 
     res.render("partitials/gameField", {
         game: game,
@@ -390,3 +480,87 @@ app.post("/newgame", (req, res) => {
     });
 
 });
+
+app.get("/private/:gameid", (req, res) => {
+    if (!req.userInfo) {
+        res.render("index", {game: {
+            singlePlayer: true,
+            width: 10,
+            height: 10,
+            num: 15
+            },
+            isLoggedIn: false,
+            forceToLogIn: true
+        });
+
+    return;    
+    }
+
+    res.render("tables", {
+        isLoggedIn: req.userInfo.isLoggedIn,
+        isGuest: req.userInfo.isGuest,
+        username: req.userInfo.username,
+        name: req.userInfo.name,
+        rank: req.userInfo.rank,
+        avatar: req.userInfo.avatar || "/images/profile-pic-placeholder.png",
+        privateGame: true,
+        gameId: Buffer.from(req.params.gameid, 'base64').toString()
+    });
+
+})
+app.post("/newRecord", (req, res) => { //TODO: rename route to smth with simgle player
+    if (req.userInfo.isGuest) req.userInfo.username = "Guest";
+    pool.connect((err, client, release) => {
+
+        let query = `INSERT INTO recordssingleplayer (playerusername, timems, gametype) 
+                                            values ('${req.userInfo.username}', '${req.body.timems}', '${req.body.gameType}') returning gameId`;
+        if (err) {
+            console.log("inserting new record in singleplayer: ", err);
+        }
+
+        client.query(query, (err, result) => {
+
+            console.log()
+            let dbGameId = result.rows[0].gameid;
+
+            release()
+
+            if (err) {
+                console.log(err);
+            }
+            
+            pool.connect((err, client, release) => {
+                let query = `SELECT * FROM recordssingleplayer ORDER BY timems ASC`;
+                if (err) {
+                    console.log(err)
+                }
+                client.query(query, (err, result) => {
+    
+                    release();
+    
+                    if (err) {
+                        console.log("selecting top records from singleplayer: ", err);
+                        return;
+                    }
+
+                    let currentGame, k = -1;
+                    result.rows.forEach((item, i) => {
+                        if (item.gameid == dbGameId) k = i;
+                    })
+
+                    currentGame = result.rows[k];
+                    currentGame.num = k;
+                    currentGame.isCurrentGame = true;
+                
+                    result.rows.splice(10);
+                    if (k >= 10) result.rows.push(currentGame);
+                    
+                    res.send(JSON.stringify(result.rows));
+                })
+            })
+            
+
+        })
+    })
+
+})

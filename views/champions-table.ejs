@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru-RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Сапёр</Title>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/common.css">
+    <link rel="stylesheet" type="text/css" href="/css/tables.css">
+    <link rel="stylesheet" type="text/css" href="/css/champions-table.css">
+</head>
+<body>
+    <div class="modal" id="serverError" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body serverError">
+                    <h1>That's not so good</h1>
+                    <span class="text-justify error-text"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg">
+    </div>
+    <div class="main">
+        <%- include('partitials/header') %>
+
+        <div class="content">
+            <div class="content-page">
+                <div class="content-header">
+                    <div class="rank-star rank-star-records"></div>
+                    <h1 class="records-title">Champions</h1>
+                    <div class="records-button-wrapper">
+                        <button type="button" class="btn btn-success records_button records_button_delegation" table-name="users" >Personal records</button>
+                        <button type="button" class="btn btn-success records_button records_button_delegation" table-name="recordstwoplayers" >Multiplayer</button>
+                        <div class="start-game-btns dropdown dropdown_records-singleplayer records_button">
+                            <a class="btn btn-success singleplayer-records-dropdown-toggle" href="#" role="button" >
+                                Single player
+                            </a> 
+                            <div class="dropdown-menu collapse singleplayer-records-dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item records_button_delegation" href="#" table-name="recordssingleplayer" param="easy" >Easy</a>
+                                <a class="dropdown-item records_button_delegation" href="#" table-name="recordssingleplayer" param="medium" >Medium</a>
+                                <a class="dropdown-item records_button_delegation" href="#" table-name="recordssingleplayer" param="hard" >Hard</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rank-star rank-star-records"></div>
+
+                </div>
+                <div class="content-main">
+                    <div class="content-main-records">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementsByClassName("singleplayer-records-dropdown-toggle")[0].onclick = event => {
+            document.getElementsByClassName("singleplayer-records-dropdown-menu")[0].classList.toggle("collapse");
+        }
+    </script>
+    <script src="/js/champions-table.js"></script>
+</body>
+</html>

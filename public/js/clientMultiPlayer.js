@@ -1,13 +1,28 @@
-function multiPlayerInit(socket) {
+function Multiplayer(socket) {
 
-    const table = document.getElementById("table");
-    const field = [].slice.call(document.getElementsByClassName("cell"));
-    const gameId = document.getElementById("table").getAttribute("gameId");
-    let countDown = new Timer();
-    let minesLeft = new MinesLeft();
+    let table,
+        field,
+        gameId,
+        countDown,
+        minesLeft;
+
+    let start = () => {
+        if (table) table.onmousedown = null;
+
+        table = document.getElementById("table");
+        table.onmousedown = tableClickHandler;
+        field = [].slice.call(document.getElementsByClassName("cell"));
+        gameId = document.getElementById("table").getAttribute("gameId");
+        countDown = new Timer();
+        minesLeft = new MinesLeft();
+    }
+    
+    this.startOver = start;
+
+    start();
 
     function fieldUpdate(fieldUpdate){
-        console.log(fieldUpdate)
+        
         for (cellNum in fieldUpdate) {
             fieldUpdate[cellNum]["cell-closed"] === false ? field[cellNum].classList.remove("cell-closed") : "";
             fieldUpdate[cellNum]["cell-opened"] ? field[cellNum].classList.add("cell-opened") : field[cellNum].classList.remove("cell-opened");
@@ -26,43 +41,82 @@ function multiPlayerInit(socket) {
     });
 
     socket.on("error", data =>{
-        console.log("error")
+        console.log("error", data)
     })
 
     socket.on("gameOver", data => {
         for (cell in data.fieldUpdate) {
             field[cell].classList.add("exploded");
         }
-        field[data.wrong].classList.add("wrong-move");  
+        field[data.wrong].classList.add("wrong-move");
     })
-
-    socket.on("resultsReady", data => {
-        document.getElementById("gameResults").style.display = "block";
-        document.getElementsByClassName("game-result")[0].innerHTML = "Congratulations";
-        document.getElementsByClassName("records")[0].innerHTML = data.result.reduce((sum, current, i) => {
-            if (i == 10) sum += `<div class="break">.  .  .</div>`
-
-            return sum + `<div class="record-item ${current.isCurrentGame ? "current-game": ""}">
-                        <div class="record-item_num"><div class="float_right">${current.isCurrentGame ? current.num + 1 : i + 1}</div></div>
-                        <div class="record-item_gameId">${current.gameid}</div>
-                        <div class="record-item_player1username">${current.player1username}</div>
-                        <div class="record-item_player2username">${current.player2username}</div>
-                        <div class="record-item_timems"><div class="float_right">${current.timems.toString().slice(0, -3) + "." + current.timems.toString().slice(-3)}</div></div>
-                        <div class="record-item_date">${new Date(current.created_at).toStringLoc()}</div>
-                    </div>`;
-        }, `<div class="record-item records-header">
-                <div class="record-item_num"></div>
-                <div class="record-item_gameId">Game Id</div>
-                <div class="record-item_player1username">Player 1</div>
-                <div class="record-item_player2username">Player 2</div>
-                <div class="record-item_timems">Time</div>
-                <div class="record-item_date">Date</div>
-            </div>
-            <div class="records-wrapper">`)
-    }) + "</div>";
     
-    table.onmousedown = tableClickHandler;
+    //(function(){
+        let rankUpdateInfo
 
+        socket.on("resultsReady", data => {
+
+            document.getElementById("gameResults").style.display = "block";
+            document.getElementsByClassName("game-result")[0].innerHTML = data.text;
+
+            if (rankUpdateInfo)
+                rankInfoUpdated(rankInfoUpdated);
+
+            document.getElementsByClassName("records")[0].innerHTML = data.result.reduce((sum, current, i) => {
+                if (i == 10) sum += `<div class="break">.  .  .</div>`
+    
+                return sum + `<div class="record-item ${current.isCurrentGame ? "current-game": ""}">
+                            <div class="record-item_num"><div class="float_right">${current.isCurrentGame ? current.num + 1 : i + 1}</div></div>
+                            <div class="record-item_player1username">${current.player1username}</div>
+                            <div class="record-item_player2username">${current.player2username}</div>
+                            <div class="record-item_timems"><div class="float_right">${current.timems.toString().slice(0, -3) + "." + current.timems.toString().slice(-3)}</div></div>
+                            <div class="record-item_date">${new Date(current.created_at).toStringLoc()}</div>
+                        </div>`;
+            }, `<div class="record-item records-header">
+                    <div class="record-item_num"></div>
+                    <div class="record-item_player1username">Player 1</div>
+                    <div class="record-item_player2username">Player 2</div>
+                    <div class="record-item_timems">Time</div>
+                    <div class="record-item_date">Date</div>
+                </div>
+                <div class="records-wrapper">`) + "</div>";
+        }); 
+        
+        socket.on("rankUpdated", rankInfoUpdated);
+        function rankInfoUpdated(data){
+            console.log(data)
+            if (!document.getElementsByClassName("ranks-change")[0].offsetParent) {
+                rankUpdateInfo = data;
+            } else {
+                
+                document.getElementsByClassName("ranks-change-info_username-player1")[0].innerHTML = data.player1.username; 
+                document.getElementsByClassName("ranks-change-info_username-player2")[0].innerHTML = data.player2.username;
+
+                document.getElementsByClassName("ranks-change-info_touches_player1")[0].innerHTML = data.player1.touches; 
+                document.getElementsByClassName("ranks-change-info_touches_player2")[0].innerHTML = data.player2.touches; 
+
+                if (data.player1.delta >= 0) {
+                    document.getElementsByClassName("rank-change_added_player1")[0].innerHTML = data.player1.delta; 
+                } else {
+                    document.getElementsByClassName("rank-subtracted_player1")[0].innerHTML = Math.abs(data.player1.delta);                     
+                }
+
+                if (data.player2.delta >= 0) {
+                    document.getElementsByClassName("rank-change_added_player2")[0].innerHTML = data.player2.delta; 
+                } else {
+                    document.getElementsByClassName("rank-subtracted_player2")[0].innerHTML += Math.abs(data.player2.delta);                     
+                }
+
+                rankUpdateInfo = null;
+            }
+    
+    
+    
+    
+        }
+    //})()
+    
+    
     function MinesLeft(){
         let minesLeft = document.getElementsByClassName("mines-left")[0];
         let start = +minesLeft.innerHTML;
@@ -73,13 +127,13 @@ function multiPlayerInit(socket) {
     }
 
     function tableClickHandler(event){
-
+        
         if (!event.target.classList.contains("cell-closed")) return;
 
         if (event.button === 2) return;
 
         if (event.target.classList.contains("flag")) return;
-
+        
         if (!document.getElementsByClassName("cell-opened").length) {
             
             socket.emit("gameStart", {

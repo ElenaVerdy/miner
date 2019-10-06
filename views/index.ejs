@@ -12,14 +12,12 @@
 </head>
 <body>
     <%- include('partitials/authorization') %>
-    <div class="modal" id="authorizationServerError" tabindex="-1" role="dialog">
+    <div class="modal" id="serverError" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-body serverError">
                     <h1>That's not so good</h1>
-                    <span class="text-justify">Unfortunately, there has been a mistake and our server couldn't do what has to be done.
-                        We are deeply sorry and doing our best on not letting it happen again.
-                    </span>
+                    <span class="text-justify error-text"></span>
                 </div>
             </div>
         </div>

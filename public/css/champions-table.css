@@ -1,0 +1,62 @@
+.rank-star-records{
+    width: 35px;
+    height: 35px;
+}
+.records-button-wrapper{
+    display: flex;
+    flex: 10 auto;
+    justify-content: flex-end;
+}
+.records_button{
+    margin: 15px 10px;
+}
+.records-title{
+    color: goldenrod;
+    margin: 0;
+}
+.content-main-records{
+    display: flex;
+    flex-direction: column;
+    padding-right: 2px;
+}
+.champions-table_record{
+    display: flex;
+    margin: 2px auto;
+    display: flex;
+    padding: 3px 10px;
+    border-color: red;
+    border-radius: 2px;
+    border: 1px solid;
+    background-color: rgba(255, 255, 250, 0.3);
+    color: black;
+    width: 650px;
+}
+.champions-table_record_num{
+    max-width: 40px;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+.champions-table_record_num>*{
+    padding: 0px 5px;
+    font-weight: 600;
+    color: black;
+}
+.champions-table_record_separator{
+    color: black;
+}
+.champions-table_record_username{
+    width: 300px;
+    color: black;
+    font-size: 1.2em;
+    flex: 10 auto;
+}
+.champions-table_record_player1username, .champions-table_record_player2username{
+    width: 190px;
+}
+.champions-table_record_timems{
+    margin: 0px 10px 0px 3px;
+    width: 70px;
+    text-align: end;
+}
