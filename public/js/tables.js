@@ -67,7 +67,7 @@ const WaitingModal = function (){
     function lookingForOtherPlayer() {
         modalBlock.style.display = "block";
         clearInterval(timer);
-        modalBody.innerHTML = `                    
+        modalBody.innerHTML = `
         <h1>Looking for other player.</h1>
         <div class="url-wrapper" hidden>
             <input type="text" class="url-text">
