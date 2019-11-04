@@ -18,11 +18,15 @@
 }
 .cell{
     text-align: center;
-    min-width: 23px;
-    width: 23px;
-    height: 23px;
+    width: 2vmax;
+    height: 2vmax;
     padding: 0px;
     border: 1px solid rgba(0, 0, 0, 0.1);
+    line-height: 0px;
+}
+.field-size_teamplay .cell{
+    width: 1.8vmax;
+    height: 1.8vmax;
 }
 .mines-around-num{
     margin-top: -2px;
@@ -30,10 +34,15 @@
     pointer-events: none;
 }
 .cell-closed{
+    /* background-color: rgba(170, 215, 81); */
     background-color: yellowgreen;
     border: 1px solid darkgreen;
     cursor: pointer;
 }
+/* tr:nth-child(even) td:nth-child(even).cell-closed:not(.exploded), 
+    tr:nth-child(odd) td:nth-child(odd).cell-closed:not(.exploded) {
+    background-color: rgba(162, 209, 73);
+} */
 .cell-opened{
     background-color: #CD853F;;
 }
@@ -64,7 +73,11 @@
     border: solid;
     border-width: 1px 1px 1px 0px;
 }
-.game-menu-item>*{
+.game-menu-item_touches{
+    width:50%;
+    justify-content: space-around;
+}
+.game-menu-item > *{
     font-size: x-large;
     color: burlywood;
     font-weight: 500;
@@ -75,7 +88,6 @@
     background-color: rgba(0, 0, 0, 0.5);
     border-color: rgba(255, 150, 0, 0.1)
 }
-
 .game-menu .player-info {
     width: 25%;
 }
@@ -102,4 +114,71 @@
     background-size: cover;
     background-image: url("/images/exploded.png");
     background-color: red;
+}
+.touches-ico{
+    width: 20px;
+    height: 20px;
+    background-size: cover;
+}
+.touches-flex-wrapper{
+    display: flex;
+    align-items: center;
+}
+.player1touches-ico{
+    background-image: url("/images/player1touch.png");
+}
+.player2touches-ico{
+    background-image: url("/images/player2touch.png");
+}
+@media(orientation: portrait) {
+/*TODO: a tip to switch to landscape mode*/
+}
+@media(max-width: 720px) {
+    .player-info .username{
+        margin: 0;
+        width: auto;
+        font-size: 1em;
+    }
+    .player-info .rank{
+        font-size: 0.7em;
+    }
+    .player-info .avatar-mini{
+        height: 40px;
+    }
+    .game-menu .player-info{
+        width: 33.33%;
+    }
+    .game-menu-item{
+        width: 25%;
+    }
+    .game-menu-item_touches{
+        width: 50%;
+    }
+    .game-menu-item>*{
+        font-size: large;
+    }
+    .game-menu-item_touches{
+        display: flex;
+        flex-direction: column;
+    }
+    .game-menu-item_touches>*{
+        display: flex;
+    }
+}
+@media(max-width: 400px), (max-height: 400px) {
+    .field-size_easy .cell{
+        width: 10vmin;
+        height: 10vmin;
+    }
+    .field-size_medium .cell{
+        width: 6vmin;
+        height: 6vmin;
+    }
+    .field-size_hard .cell{
+        width: 5vmin;
+        height: 5vmin;
+    }
+    .cell{
+        font-size: 2vmax;
+    }
 }

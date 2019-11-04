@@ -8,17 +8,16 @@
     "crypto": "^1.0.1",
     "ejs": "^2.6.2",
     "express": "^4.17.1",
-    "micromodal": "^0.4.0",
-    "mongodb": "^3.2.7",
-    "passport": "^0.4.0",
+    "express-favicon": "^2.0.1",
     "pg": "^7.11.0",
+    "serve-favicon": "^2.5.0",
     "socket.io": "^2.2.0",
-    "socket.io-client": "^2.2.0",
-    "supervisor": "^0.12.0"
+    "supervisor": "^0.12.0",
+    "timesync": "^1.0.4"
   },
   "devDependencies": {},
   "scripts": {
-    "start": "server app.js"
+    "start": "server.js"
   },
   "author": "",
   "license": "ISC",

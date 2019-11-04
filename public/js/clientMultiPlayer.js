@@ -41,7 +41,7 @@ function Multiplayer(socket) {
     });
 
     socket.on("error", data =>{
-        console.log("error", data)
+        console.log("error", data);
     })
 
     socket.on("gameOver", data => {
@@ -60,7 +60,7 @@ function Multiplayer(socket) {
             document.getElementsByClassName("game-result")[0].innerHTML = data.text;
 
             if (rankUpdateInfo)
-                rankInfoUpdated(rankInfoUpdated);
+                rankInfoUpdated(rankUpdateInfo);
 
             document.getElementsByClassName("records")[0].innerHTML = data.result.reduce((sum, current, i) => {
                 if (i == 10) sum += `<div class="break">.  .  .</div>`
@@ -69,7 +69,7 @@ function Multiplayer(socket) {
                             <div class="record-item_num"><div class="float_right">${current.isCurrentGame ? current.num + 1 : i + 1}</div></div>
                             <div class="record-item_player1username">${current.player1username}</div>
                             <div class="record-item_player2username">${current.player2username}</div>
-                            <div class="record-item_timems"><div class="float_right">${current.timems.toString().slice(0, -3) + "." + current.timems.toString().slice(-3)}</div></div>
+                            <div class="record-item_timems"><div class="float_right">${formatTimeMs(current.timems)}</div></div>
                             <div class="record-item_date">${new Date(current.created_at).toStringLoc()}</div>
                         </div>`;
             }, `<div class="record-item records-header">
@@ -84,16 +84,20 @@ function Multiplayer(socket) {
         
         socket.on("rankUpdated", rankInfoUpdated);
         function rankInfoUpdated(data){
-            console.log(data)
             if (!document.getElementsByClassName("ranks-change")[0].offsetParent) {
                 rankUpdateInfo = data;
             } else {
-                
+
                 document.getElementsByClassName("ranks-change-info_username-player1")[0].innerHTML = data.player1.username; 
                 document.getElementsByClassName("ranks-change-info_username-player2")[0].innerHTML = data.player2.username;
 
                 document.getElementsByClassName("ranks-change-info_touches_player1")[0].innerHTML = data.player1.touches; 
                 document.getElementsByClassName("ranks-change-info_touches_player2")[0].innerHTML = data.player2.touches; 
+
+                document.getElementsByClassName("rank-change_added_player1")[0].innerHTML = 
+                document.getElementsByClassName("rank-subtracted_player1")[0].innerHTML   =
+                document.getElementsByClassName("rank-change_added_player2")[0].innerHTML =
+                document.getElementsByClassName("rank-subtracted_player2")[0].innerHTML   = "";
 
                 if (data.player1.delta >= 0) {
                     document.getElementsByClassName("rank-change_added_player1")[0].innerHTML = data.player1.delta; 
@@ -104,7 +108,7 @@ function Multiplayer(socket) {
                 if (data.player2.delta >= 0) {
                     document.getElementsByClassName("rank-change_added_player2")[0].innerHTML = data.player2.delta; 
                 } else {
-                    document.getElementsByClassName("rank-subtracted_player2")[0].innerHTML += Math.abs(data.player2.delta);                     
+                    document.getElementsByClassName("rank-subtracted_player2")[0].innerHTML = Math.abs(data.player2.delta);                     
                 }
 
                 rankUpdateInfo = null;
@@ -115,7 +119,14 @@ function Multiplayer(socket) {
     
         }
     //})()
+    function formatTimeMs(timems){
+        timems = timems / 1000;
     
+        if (timems % 1 == 0) 
+            return timems + ".000";
+        
+        return (timems + "00").slice(0, (timems + "00").indexOf('.') + 4);
+    }
     
     function MinesLeft(){
         let minesLeft = document.getElementsByClassName("mines-left")[0];

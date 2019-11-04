@@ -1,5 +1,5 @@
 let Authorization = function(){
-    let address = "http://192.168.43.106:3000";
+    let address = "http://192.168.1.123:3000";
     
     let auth = this;
 
@@ -120,13 +120,14 @@ let Authorization = function(){
         let http = new XMLHttpRequest();
         http.open("POST", `${address}/login`);
         http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-
+        http.withCredentials = true;
         http.onreadystatechange = function() {
             if (this.status === 401) return badCredentials();
             if (this.status === 500) return error(500);
             if (this.readyState !== 4 || this.status !== 200) return;
+            console.log(this.getAllResponseHeaders())
             
-            window.location.reload();
+            //window.location.reload();
         }
         http.send(JSON.stringify({
             username: DOM.inputs.login.value,
@@ -172,13 +173,15 @@ let Authorization = function(){
         startAsGuest.onclick = ()=>{
             let http = new XMLHttpRequest();
             http.open("GET", `${address}/GuestRequest`);
+        http.withCredentials = true;
+
             http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     
             http.onreadystatechange = function() {
                 if (this.status === 500) return error(500);
                 if (this.readyState !== 4 || this.status !== 200) return;
-                
-                window.location.reload();
+                console.log(this.HEADERS_RECEIVED)
+                //window.location.reload();
             }
             http.send();
         }

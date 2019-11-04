@@ -12,12 +12,12 @@
 }
 .records-title{
     color: goldenrod;
-    margin: 0;
+    margin: 0px 0px 0px 3px;
 }
 .content-main-records{
     display: flex;
     flex-direction: column;
-    padding-right: 2px;
+    padding: 5px 10px;
 }
 .champions-table_record{
     display: flex;
@@ -30,6 +30,9 @@
     background-color: rgba(255, 255, 250, 0.3);
     color: black;
     width: 650px;
+}
+.best-block-wrapper{
+    padding: 5px 10px;
 }
 .champions-table_record_num{
     max-width: 40px;
@@ -52,6 +55,10 @@
     font-size: 1.2em;
     flex: 10 auto;
 }
+.champions-table_record_rank{
+    display: flex;
+    align-items: center;
+}
 .champions-table_record_player1username, .champions-table_record_player2username{
     width: 190px;
 }
@@ -59,4 +66,52 @@
     margin: 0px 10px 0px 3px;
     width: 70px;
     text-align: end;
+}
+.champions-table_record_date {
+    width: 8rem;
+}
+.best-result{
+    color: goldenrod;
+    background-color: gold;
+}
+.best-result .rank{
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    border: 1px solid goldenrod;
+    padding: 0px 2px;
+    margin: 0px -5px;
+    color: goldenrod;
+}
+.best-result .champions-table_record_player1username, 
+.best-result .champions-table_record_player2username,
+.best-result .champions-table_record_timems,
+.best-result .champions-table_record_date {
+    color: black;
+}
+.best-result-separator{
+    border: 1px solid black;
+    margin: 8px auto;
+    width: 634px;
+}
+@media(max-width: 1040px) {
+    .records_button{
+        display: none;
+    }
+    .table-choice-dropdown-menu{
+        display: block;
+    }
+    .champions-table_record, .best-result-separator{
+        width: 100%;
+    }
+    .champions-table_record_player1username, .champions-table_record_player2username{
+        width: 40%;
+    }
+    .champions-table_record_date{
+        display: none;
+    }
+}
+@media(max-width: 405px) {
+    .rank-star-records{
+        display: none;
+    }
 }

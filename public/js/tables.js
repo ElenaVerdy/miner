@@ -1,7 +1,14 @@
-let address = "http://192.168.43.106:3000";
+let address = "http://192.168.1.123:3000";
 let socket = io.connect(address);
 let multiplayer;
-const timeToAcceptSuggestion = 20;
+const timeToAcceptSuggestion = 5000;
+
+//Only need this for the game start and replay suggestions. Recalc every two minutes. Mb reduce it further  
+var ts = timesync.create({
+    server: '/timesync',
+    interval: 1000 * 60 * 2
+});
+
 
 window.onload = ()=>{
     let tables = document.getElementsByClassName("game-table");
@@ -41,44 +48,55 @@ const WaitingModal = function (){
     let modalBody = document.getElementsByClassName("waitingForOtherPlayer")[0];
     let modalBlock = document.getElementById("waitingForOtherPlayer");
     let timer = null;
+    let outerTimer = null;
 
-    function ready() {
+    function ready(startTime) {
+        let msLeft = startTime - ts.now();
         modalBlock.style.display = "block";
         clearInterval(timer);
+        clearTimeout(outerTimer);
+        
         modalBody.innerHTML = `
-        <h1>Game is going to start in: <span class="start-countdown">1</span></h1>
-        `;    
+        <h1 class="modal-body_header">Your game is going to start in <span class="start-countdown">
+                ${(msLeft / 1000) ^ 0}</span> seconds.</h1><h4 class="gl-hf">Good Luck! Have Fun!<h4>
+        `;   
         
         let startCountdown = document.getElementsByClassName("start-countdown")[0];
-        timer = setInterval(()=>{
-
-            if (!document.getElementsByClassName("start-countdown")[0]) {
-                clearInterval(timer);
-                return;                   
-            }
-            if (startCountdown.innerHTML == 1) {
-                hide();    
-            }
-            startCountdown.innerHTML = startCountdown.innerHTML - 1;
-        }, 1000)
+        outerTimer = setTimeout(()=>{
+            timer = setInterval(()=>{
+    
+                if (!document.getElementsByClassName("start-countdown")[0]) {
+                    clearInterval(timer);
+                    clearTimeout(outerTimer);
+                    return;                   
+                }
+                if (startCountdown.innerHTML == 1) {
+                    hide();    
+                }
+                startCountdown.innerHTML = startCountdown.innerHTML - 1;
+            }, 1000)
+        }, msLeft % 1000)
     };
 
     
     function lookingForOtherPlayer() {
         modalBlock.style.display = "block";
         clearInterval(timer);
+        clearTimeout(outerTimer)
         modalBody.innerHTML = `
-        <h1>Looking for other player.</h1>
+        <h1 class="looking-for-other-player_header">Waiting for your teammate</h1>
+        <div class="lds-grid"><div></div><div></div><div></div></div>
         <div class="url-wrapper" hidden>
             <input type="text" class="url-text">
             <button class="copy-btn">Click to copy</button>
         </div>
-        <button class="back-to-tables">back</button>`;
+        <div>To go back to tables click <a href="/">here</a></div>`;
     };
         
     function hide() {
         modalBlock.style.display = "none";
         clearInterval(timer);
+        clearTimeout(outerTimer);
     }
     
     this.ready = ready;
@@ -104,8 +122,8 @@ document.getElementsByClassName("singleplayer-dropdown-menu")[0].onclick = event
 
         document.getElementsByClassName("content-page")[0].innerHTML = this.response;
 
-        document.getElementsByClassName("content-page")[0].classList.add("content-page-singleplayer");
-        
+        document.getElementsByClassName("content-page")[0].classList.add("content-page-ingame");
+
         s = document.createElement("script");       
         s.setAttribute("src", "/js/clientSinglePlayer.js");        
         document.body.appendChild(s);
@@ -146,6 +164,8 @@ document.body.addEventListener("click", event => {
         let gameId_old = event.target.classList.contains("play-again") ? document.getElementById("table").getAttribute("gameid") : null;
 
         document.getElementsByClassName("content-page")[0].innerHTML = this.response;
+
+        document.getElementsByClassName("content-page")[0].classList.add("content-page-ingame");
 
         let gameId = document.getElementById("table").getAttribute("gameId");
         
@@ -220,6 +240,8 @@ document.body.addEventListener("click", event => {
         if (this.readyState !== 4 || this.status !== 200) return;
 
         document.getElementsByClassName("content-page")[0].innerHTML = this.response;
+
+        document.getElementsByClassName("content-page")[0].classList.add("content-page-ingame");
         
         if (!event.target.classList.contains("play-again")) {
 
@@ -245,8 +267,9 @@ document.body.addEventListener("click", event => {
                                         username: document.querySelector(".player2info .username").innerHTML});                
         
         }
-        
-        waitingModal.lookingForOtherPlayer();
+        if (!event.target.classList.contains("continue")) {
+            waitingModal.lookingForOtherPlayer();
+        }
         
     };
 
@@ -256,20 +279,29 @@ document.body.addEventListener("click", event => {
 })
 
 function updatePlayersInfo(playersInfo) {
-    
+
     if (playersInfo.player1) { 
         document.querySelector(".player1info .avatar").setAttribute("src", playersInfo.player1.avatar);
         document.querySelector(".player1info .rank").innerHTML = playersInfo.player1.rank;
         document.querySelector(".player1info .username").innerHTML = playersInfo.player1.name || playersInfo.player1.username;
+        
+        playersInfo.player1.isInGame ? document.querySelector(".player1info").classList.remove("player-info_disconnected") :
+                                       document.querySelector(".player1info").classList.add("player-info_disconnected");
     }
     if (playersInfo.player2) { 
         document.querySelector(".player2info .avatar").setAttribute("src", playersInfo.player2.avatar);
         document.querySelector(".player2info .rank").innerHTML = playersInfo.player2.rank;
         document.querySelector(".player2info .username").innerHTML = playersInfo.player2.name || playersInfo.player2.username;
+
+        playersInfo.player2.isInGame ? document.querySelector(".player2info").classList.remove("player-info_disconnected") :
+                                       document.querySelector(".player2info").classList.add("player-info_disconnected");   
+
     } else {
         document.querySelector(".player2info .avatar").setAttribute("src", "/images/waiting.png");
         document.querySelector(".player2info .rank").innerHTML = 9999;
         document.querySelector(".player2info .username").innerHTML = "Player 2";
+        document.querySelector(".player2info").classList.add("player-info_disconnected");   
+        
     } 
 }
 
@@ -280,18 +312,20 @@ socket.on("ready", data => {
 
     document.getElementById("play-again-suggestion").style.display = "none";
     
-    waitingModal.ready();
+    waitingModal.ready(data.startTime);
 });
 (function(){
     let playAgainSuggestionText;
 
     socket.on("replayDeclined", data => {
+
         if (playAgainSuggestionText){
 
             timerHTML = playAgainSuggestionText.getElementsByClassName("redirection-countdown")[0];
             if (timerHTML) {
                 timerHTML.innerHTML = 1;
             }
+            playAgainSuggestionText = null;
         } else {
             error(500);
         }
@@ -300,19 +334,26 @@ socket.on("ready", data => {
     socket.on("playAgainSuggestion", data => {
 
         let isInitiator = data.initiator === socket.id;
-        let username, timerHTML, timer;
-
-        document.getElementById("gameResults").style.display = "none";
-        document.getElementById("play-again-suggestion").style.display = "block";
-
-        playAgainSuggestionText = isInitiator ? document.getElementsByClassName("play-again-suggestion_waiting")[0]
-                                            : document.getElementsByClassName("play-again-suggestion_answer")[0];
+        let username, timerHTML, timer, outerTimer;
+        let msLeft = data.sendTime + timeToAcceptSuggestion - ts.now(); 
 
         let playAgainBtn = document.getElementsByClassName("game-result-btn_play-again")[0];
 
+        document.getElementById("gameResults").style.display = "none";
+        document.getElementById("play-again-suggestion").style.display = "block";
+        document.getElementsByClassName("play-again-suggestion_waiting")[0].classList.add("collapse");
+        document.getElementsByClassName("play-again-suggestion_answer")[0].classList.add("collapse");
+
+
+        playAgainSuggestionText = isInitiator ? document.getElementsByClassName("play-again-suggestion_waiting")[0]
+                                              : document.getElementsByClassName("play-again-suggestion_answer")[0];
+
+
         if (isInitiator) {
             playAgainBtn.setAttribute("disabled", "disabled");
+            playAgainBtn.innerHTML = "Play again";
         } else {
+            playAgainBtn.removeAttribute("disabled");
             playAgainBtn.innerHTML = "join";
             playAgainBtn.setAttribute("gameId", data.gameId);
             playAgainBtn.classList.add("delegation_join-button");
@@ -323,32 +364,38 @@ socket.on("ready", data => {
         username.innerHTML = data.initiatorUsername;
         
         timerHTML = playAgainSuggestionText.getElementsByClassName("redirection-countdown")[0];
-        timerHTML.innerHTML = timeToAcceptSuggestion;
 
-        timer = setInterval(()=>{
-            if (!document.getElementsByClassName("redirection-countdown")[0]) {
-                clearInterval(timer);
-                return;                   
-            }
-            if (timerHTML.innerHTML == 1) {
-                clearInterval(timer);
+        timerHTML.innerHTML = (msLeft / 1000) ^ 0;
 
-                if (isInitiator) {
-                    
-                    let newGameBtn = document.createElement("button");
-                    newGameBtn.classList.add("delegation_start-game", "public-game", "play-again");
-                    newGameBtn.style.display = "none";
-                    document.body.appendChild(newGameBtn);
+        outerTimer = setTimeout(function(){
 
-                    newGameBtn.dispatchEvent(new Event("click", {bubbles: true}));
-                    
-                    document.getElementById("play-again-suggestion").style.display = "none";
-                } else {
-                    window.location.href = `${address}`;
+            timer = setInterval(()=>{
+                if (!timerHTML.offsetParent) {
+                    clearInterval(timer);
+                    clearTimeout(outerTimer);
+                    return;                   
                 }
-            }
-            timerHTML.innerHTML = timerHTML.innerHTML - 1;
-        }, 1000)
+                if (timerHTML.innerHTML == 1) {
+                    clearInterval(timer);
+                    clearTimeout(outerTimer);
+
+                    if (isInitiator) {
+                        
+                        let newGameBtn = document.createElement("button");
+                        newGameBtn.classList.add("delegation_start-game", "public-game", "play-again");
+                        newGameBtn.style.display = "none";
+                        document.body.appendChild(newGameBtn);
+
+                        newGameBtn.dispatchEvent(new Event("click", {bubbles: true}));
+                        
+                        document.getElementById("play-again-suggestion").style.display = "none";
+                    } else {
+                        window.location.href = `${address}`;
+                    }
+                }
+                timerHTML.innerHTML = timerHTML.innerHTML - 1;
+            }, 1000)
+        }, msLeft % 1000);
     });
 })()
 socket.on("playerLeftBeforeTheGameStarted", data => {

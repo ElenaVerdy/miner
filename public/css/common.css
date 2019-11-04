@@ -1,3 +1,14 @@
+.link-cleared{
+    color: inherit;
+    text-decoration: none;
+}
+.link-cleared:hover{
+    color: inherit;
+    text-decoration: none;
+}
+h1, h2, h3, h4, h5, h6, span, div, p {
+    /* font-family: cursive; */
+}
 .modal{
     background-color: rgba(0,0,0,0.3)
 }
@@ -5,12 +16,12 @@ span, h1{
     cursor: default;
 }
 .bg{
-    background-image: url("/images/bg.jpg");
+    background-image: url("/images/bg-repeat.png");
     height: 100%;
     width: 100%;
     background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+    background-repeat: repeat;
+    /* background-size: cover; */
     position: fixed;
     z-index: -1;
 }
@@ -56,7 +67,69 @@ body, html{
     align-items: center;
     flex: 11 auto;
 }
-@media( max-width: 440px ) {
+.dropdown-menu_right{
+    right: 0;
+    left: auto;
+}
+.dropdown-menu_right_bottom{
+    left: auto;
+    right: 0;
+    top: -166px;
+}
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+.main-menu-dropdown{
+    width: fit-content;
+    position: absolute;
+    bottom: 17px;
+    right: 12px;
+}
+.dropdown-nav-link{
+    border-radius: 10px;
+    padding: 2px 6px;
+}
+/* animation block */
+    .lds-grid {
+        display: inline-block;
+        position: relative;
+        width: 110px;
+        height: 40px;
+        margin: 20px 0px 5px 0px;
+    }
+    .lds-grid div {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: green;
+        animation: lds-grid 1.2s linear infinite;
+    }
+    .lds-grid div:nth-child(1) {
+        top: 0px;
+        left: 0px;
+        animation-delay: 0s;
+    }
+    .lds-grid div:nth-child(2) {
+        top: 0px;
+        left: 40px;
+        animation-delay: -0.6s;
+    }
+    .lds-grid div:nth-child(3) {
+        top: 0px;
+        left: 80px;
+        animation-delay: -1.2s;
+    }
+    @keyframes lds-grid {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+    }
+/* end of animation block */
+@media( max-width: 440px ), (max-height: 440px) {
     .dropdown{
         display: block;
     }

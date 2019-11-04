@@ -1,6 +1,6 @@
 <div class="playing-area">
 
-    <div class="table-wrapper" fieldSize= <%= game.fieldSize %>>
+    <div class="table-wrapper<%= game.fieldSize ? ` field-size_` + (game.fieldSize).toLowerCase() : `` %><%= game.singlePlayer ? `` : ` field-size_teamplay` %>" fieldSize= <%= game.fieldSize %>>
         <table id = "table" gameId= <%= game.gameId %> cellspacing="0">
             <tbody>
                 <% for (let i = 0; i < game.height; i++) { %>
@@ -35,12 +35,17 @@
             </div>
         <% }; %>
         <div class="game-menu-item-wrapper">
-            <div class="game-menu-item"><div class="player1touches touches-counter">0</div></div>
+
             <div class="game-menu-item"><div class="timer">999</div></div>
+            
+            <div class="game-menu-item<%= game.singlePlayer ? `` : ` game-menu-item_touches` %>">
+                <div class="touches-flex-wrapper"><div class="touches-ico player1touches-ico"></div><div class="player1touches touches-counter">0</div></div>
+                <% if (!game.singlePlayer) { %>
+                    <div class="touches-flex-wrapper"><div class="touches-ico player2touches-ico"></div><div class="player2touches touches-counter">0</div></div>
+                <% }; %>
+            </div>
+            
             <div class="game-menu-item"><div class="mines-left"><%= game.num %></div></div>
-            <% if (!game.singlePlayer) { %>
-                <div class="game-menu-item"><div class="player2touches touches-counter">0</div></div>
-            <% }; %>
             <% if (game.singlePlayer) { %>
                 <div class="game-menu-item"><button type="button" class="restart"></button></div>
             <% }; %>
@@ -66,19 +71,3 @@
     </div>
 
 </div>
-
-<% if (!game.singlePlayer) { %>
-    <style>
-        .content-page{
-            width: auto;
-            min-width: auto;
-            height: auto;
-            min-height: auto;
-        }
-        @media (max-width: 1160px) {
-            .content {
-                justify-content: flex-start;
-            }
-        }
-    </style>
-<% }; %>

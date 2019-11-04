@@ -1,0 +1,33 @@
+.rules-block{
+    margin: 50px;
+    padding: 20px 10px;
+    background-color: antiquewhite;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.main-header{
+    margin: 10px 0px 0px 30px;
+}
+.sub-header{
+    margin: 15px 40px;
+}
+.columns{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+}
+.common-paragraph{
+    margin: 10px 40px;
+}
+.rules-card{
+    margin: 15px;
+}
+@media(max-width: 700px) {
+    .columns{
+        flex-direction: column;
+    }
+}

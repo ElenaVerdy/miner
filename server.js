@@ -1,22 +1,29 @@
-const domain = "192.168.43.106";
-const express = require("express");
-const cookieParser = require('cookie-parser');
-const app = express();
-const bodyParser = require('body-parser');
-const port = process.env.PORT || 3000;
-const server = app.listen(port, ()=>{console.log(`server started on port ${port}`)});
-const io = require("socket.io")(server);
-const EventEmitter = require('events');
+const domain                    = "192.168.1.123";
+const publicAddressForCORS      = `http://10.146.223.176:50`;
+const express                   = require("express");
+const cookieParser              = require('cookie-parser');
+const app                       = express();
+const bodyParser                = require('body-parser');
+const server                    = app.listen(3000, ()=>{console.log(`server started on port 3000`)});
+const io                        = require("socket.io")(server);
+const EventEmitter              = require('events');
 class MyEmitter extends EventEmitter {}
-const myEmitter = new MyEmitter();
-const crypto = require("crypto");
-const multiplayer = require("playingInit.js");
-const { Pool } = require('pg');
+const myEmitter                 = new MyEmitter();
+const crypto                    = require("crypto");
+const multiplayer               = require("playingInit.js");
+const timesyncServer            = require('timesync/server');
+const { Pool }                  = require('pg');
+
 const pool = new Pool({
     connectionString: "postgres://postgres:1234567@localhost:5432/minesweeper"
 });
 
-multiplayer.run(io, pool);
+const teamplayField             = {width: 40, height: 20, num: 18};
+const singlePlayerSmallField    = {width: 8, height: 8, num: 10};
+const singlePlayerMediumField   = {width: 16, height: 16, num: 40};
+const singlePlayerLargeField    = {width: 30, height: 16, num: 99};
+
+multiplayer.run(io, pool, teamplayField);
 
 const sha512 = function(password){
     let salt = crypto.randomBytes(16)
@@ -61,32 +68,45 @@ function findUserByField(field, value) {
     }
     
     let query = `SELECT * FROM users WHERE ${field} = '${value}';`;
-
+    
     pool.connect((err, client, release) => {
         if (err) {
             return console.error('Error acquiring client', err.stack)
         }
         client.query(query, (err, result) => {
-
+            
             release();
-
+            
             if (err) {
                 myEmitter.emit(`found${token}`, {error: true});
             }
-
+            
             myEmitter.emit(`found${token}`, result.rows);
         })
     })
-
+    
     return token;
 };
 
 app.use(cookieParser());
 
 app.use(express.static(__dirname + '/public'));
+
+app.use('/timesync', timesyncServer.requestHandler);
+
 app.set("view engine", "ejs");
 
 app.use(bodyParser.json());
+
+app.use(require('serve-favicon')(__dirname + '\\public\\images\\favicon.ico'));
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", publicAddressForCORS); 
+    res.header("Access-Control-Allow-Credentials", "true");
+    //res.header("Set-Cookie", "HttpOnly;Secure;SameSite=None");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 app.use((req, res, next)=>{
 
@@ -94,12 +114,12 @@ app.use((req, res, next)=>{
 
         let token = findUserByField("access_token", escape(req.cookies.access_token));
 
+        //TODO: why dont i just call next once at the end? gotta test
         myEmitter.once(`found${token}`, result=>{
 
             if (result.error) {
                 next();
-                console.log("error");
-                return res.sendStatus(500);
+                return res.status(500).send("Error occured while checking accesstoken");
             }
             if (result.length) {
                 req.userInfo = {
@@ -131,9 +151,9 @@ app.use((req, res, next)=>{
 function deleteCookies(res, cookieNames) {
     cookieNames.forEach(cookie => {
         res.cookie(cookie, "null", {
-            domain: domain,
             maxAge: 1,
-            path: "/"
+            sameSite: "none"
+            //domain
         })
     });
 }
@@ -169,8 +189,13 @@ app.get("/champions-table", (req, res) => {
     res.render("champions-table", {isLoggedIn: req.userInfo && req.userInfo.isLoggedIn});
 })
 
+app.get("/rules", (req, res) => {
+    res.render("rules", {isLoggedIn: req.userInfo && req.userInfo.isLoggedIn});
+})
+
 app.get("/records/:table", (req, res) => {
     pool.connect((err, client, release) => {
+
         let query;
         let page = req.query.page;
 
@@ -193,11 +218,44 @@ app.get("/records/:table", (req, res) => {
                 return res.status(500).send("There has been a server error. Please reload the page and try again!");
             }
 
+            let bestResult = null;
+
+            if (req.query.getMyBest && req.userInfo && req.userInfo.isLoggedIn) {
+                for (var i = 0; i < result.rows.length; i++) {
+                    if (req.params.table == "users") {
+
+                        if (result.rows[i].username == req.userInfo.username) {
+                            bestResult = i < 20 ? i : result.rows[i];
+                            break;
+                        }
+
+                    } else if (req.params.table == "recordstwoplayers") {
+                        if (result.rows[i].player1username == req.userInfo.username || result.rows[i].player2username == req.userInfo.username) {
+                            bestResult = i < 20 ? i : result.rows[i];
+                            break;
+                        }
+
+                    } else if (req.params.table == "recordssingleplayer") {
+
+                        if (result.rows[i].playerusername == req.userInfo.username) {
+                            bestResult = i < 20 ? i : result.rows[i];
+                            break;
+                        }
+
+                    }   
+                }
+
+                if (bestResult && typeof bestResult === "object") {
+                    bestResult.num = i;
+                }
+            }
+
+
             res.send(JSON.stringify({
                 records:    result.rows.slice((page - 1) * 20, page * 20),
                 page:       page,
-                username:   req.userInfo.username,
-                pagesTotal: Math.ceil(result.rows.length / 10)
+                pagesTotal: Math.ceil(result.rows.length / 10),
+                bestResult
             }));
 
         })
@@ -378,10 +436,11 @@ app.post("/login", (req, res) => {
                         if (err) {
                             throw Error(500);
                         }
+                        console.log(domain, access_token)
                         res.cookie("access_token", access_token, {
-                            domain: domain,
+                            //domain,
                             maxAge: 1000 * 60 * 60 * 24 * 30,
-                            path: "/"
+                            sameSite: "none"
                         });
                         
                         res.sendStatus(200);        
@@ -406,9 +465,10 @@ app.get("/GuestRequest", (req, res) => {
     .slice(0, 32);
 
     res.cookie("guest_token", guest_token, {
-        domain: domain,
+        //domain,
         maxAge: 1000 * 60 * 60 * 24,
-        path: "/"
+        sameSite: "none"
+
     });
 
     res.send();
@@ -423,9 +483,9 @@ app.post("/join", (req, res) => {
     }
     var game = {
         singlePlayer: false,
-        width: 50,
-        height: 16,
-        num: 180,
+        width: teamplayField.width,
+        height: teamplayField.height,
+        num: teamplayField.num,
         gameId: table.gameId
     };
 
@@ -444,29 +504,29 @@ app.post("/newgame", (req, res) => {
         singlePlayer: req.body.singlePlayer
     };
 
+    let fieldSizes;
+
     if (game.singlePlayer) {
         switch (req.body.fieldSize) {
             case "Easy" :
-                game.width = game.height = 8;
-                game.num = 10;
+                fieldSizes = singlePlayerSmallField;
                 break;
             
             case "Medium" :
-                game.width = game.height = 16;
-                game.num = 40;                
+                fieldSizes = singlePlayerMediumField;                
                 break;
-            
+                
             case "Hard" :
-                game.width = 30;
-                game.height = 16;
-                game.num = 99;                                
+                fieldSizes = singlePlayerLargeField;                
                 break;
         }
     } else {
-        game.width = 50;
-        game.height = 16;
-        game.num = 180;                
+        fieldSizes = teamplayField;
     }
+
+    game.width = fieldSizes.width;
+    game.height = fieldSizes.height;
+    game.num = fieldSizes.num;
 
     game.gameId = game.singlePlayer ? undefined : multiplayer.createNewTable(req.userInfo, req.body.private).gameId;
 
@@ -508,7 +568,7 @@ app.get("/private/:gameid", (req, res) => {
     });
 
 })
-app.post("/newRecord", (req, res) => { //TODO: rename route to smth with simgle player
+app.post("/new-singleplayer-record", (req, res) => { 
     if (req.userInfo.isGuest) req.userInfo.username = "Guest";
     pool.connect((err, client, release) => {
 
@@ -520,7 +580,6 @@ app.post("/newRecord", (req, res) => { //TODO: rename route to smth with simgle 
 
         client.query(query, (err, result) => {
 
-            console.log()
             let dbGameId = result.rows[0].gameid;
 
             release()
@@ -530,7 +589,7 @@ app.post("/newRecord", (req, res) => { //TODO: rename route to smth with simgle 
             }
             
             pool.connect((err, client, release) => {
-                let query = `SELECT * FROM recordssingleplayer ORDER BY timems ASC`;
+                let query = `SELECT * FROM recordssingleplayer WHERE gametype = '${escape(req.body.gameType)}' ORDER BY timems ASC`;
                 if (err) {
                     console.log(err)
                 }

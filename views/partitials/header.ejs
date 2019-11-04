@@ -1,21 +1,19 @@
-<li class="menu-item dropdown">
-  <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Menu</a>
-  <div class="dropdown-menu collapse">
+<div class="main-menu-dropdown menu-item dropdown">
+  <a class="dropdown-nav-link nav-link dropdown-toggle" href="#" role="button" aria-haspopup="true" aria-expanded="false"></a>
+  <div class="dropdown-menu collapse dropdown-menu_right_bottom">
     <a class="dropdown-item" href="/">Play</a>
     <a class="dropdown-item" href="/champions-table">Champions table</a>
-    <a class="dropdown-item" href="#">Rules</a>
-    <a class="dropdown-item" href="#">About</a>
+    <a class="dropdown-item" href="/rules">Rules</a>
     <% if (isLoggedIn) { %>
       <div class="dropdown-divider"></div>
       <a class="dropdown-item logout" href="#">Logout</a>
     <% }; %>
-    </div>
-</li>
+  </div>
+</div>
 <nav class="nav header">
   <div class="menu-item"><a class="nav-link menu-item" tabindex="1" href="/">Play</a></div>
   <div class="menu-item"><a class="nav-link menu-item" tabindex="2" href="/champions-table">Champions table</a></div>
-  <div class="menu-item"><a class="nav-link menu-item" tabindex="3" href="#">Rules</a></div>
-  <div class="menu-item"><a class="nav-link menu-item" tabindex="4" href="#">About</a></div>
+  <div class="menu-item"><a class="nav-link menu-item" tabindex="3" href="/rules">Rules</a></div>
   <% if (isLoggedIn) { %>
     <div class="menu-item ml-auto"><a class="nav-link menu-item logout" tabindex="4" href="#">logout</a></div>
     <script>
@@ -28,8 +26,3 @@
     </script>
   <% }; %>
 </nav>
-<script>
-  document.getElementsByClassName("dropdown-toggle")[0].onclick = event => {
-    document.getElementsByClassName("dropdown-menu")[0].classList.toggle("collapse");
-  }
-</script>

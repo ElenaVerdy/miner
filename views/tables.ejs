@@ -24,12 +24,6 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-body waitingForOtherPlayer">
-                    <h1>Looking for other player.</h1>
-                    <div class="url-wrapper" hidden>
-                        <input type="text" class="url-text">
-                        <button class="copy-btn">Click to copy</button>
-                    </div>
-                    <button class="back-to-tables">back</button>
                 </div>
             </div>
         </div>
@@ -47,21 +41,21 @@
 
                         <div class="ranks-change-info">                        
                             <div class="ranks-change-info_changes ranks-change-info_changes_player1">
-                                <div class="ranks-change-info_touches-ico ranks-change-info_touches-ico-player1 player1touches"></div>
+                                <div class="ranks-change-info_touches-ico ranks-change-info_touches-ico-player1 ranks-change-info_touches_player1touches"></div>
                                 <div class="ranks-change-info_touches ranks-change-info_touches_player1"></div>
                                 <div class="separator ranks-change-info_separator"></div>
-                                <span class="rank-change_added rank-change_added_player1"></span>
-                                <span class="rank-subtracted rank-subtracted_player1"></span>    
+                                <div class="rank-change_num rank-added rank-change_added_player1"></div>
+                                <div class="rank-change_num rank-subtracted rank-subtracted_player1"></div>    
                             </div>
                             
                             <div class="rank-star ranks-change-info_rank-start"></div>
                             
                             <div class="ranks-change-info_changes ranks-change-info_changes_player2">
-                                <span class="rank-change_added rank-change_added_player2"></span>
-                                <span class="rank-subtracted rank-subtracted_player2"></span>    
+                                <div class="rank-change_num rank-added rank-change_added_player2"></div>
+                                <div class="rank-change_num rank-subtracted rank-subtracted_player2"></div>    
                                 <div class="separator ranks-change-info_separator"></div>                                
                                 <div class="ranks-change-info_touches ranks-change-info_touches_player2"></div>
-                                <div class="ranks-change-info_touches-ico ranks-change-info_touches-ico-player2 player2touches"></div>
+                                <div class="ranks-change-info_touches-ico ranks-change-info_touches-ico-player2 ranks-change-info_touches_player2touches"></div>
                             </div>
                         </div>
 
@@ -73,7 +67,7 @@
                     <div class="records"></div>
                     <div class="btn-group btn-wrapper">
                         <button type="button" class="btn btn-outline-success game-result-btn delegation_start-game private-game play-again">Play again</button>
-                        <button type="button" class="btn btn-outline-success game-result-btn">Tables</button>
+                        <button type="button" class="btn btn-outline-success game-result-btn"><a href="/" class="link-cleared">Tables</a></button>
                     </div>
                 </div>
             </div>
@@ -84,14 +78,14 @@
             <div class="modal-content">
                 <div class="modal-body play-again-suggestion">
                     <div class="play-again-suggestion_text play-again-suggestion_waiting collapse">
-                        You suggested to play another game with <span class="username username_waiting teammate-username"></span>. 
-                        If your invitation would be accepted your game will start immidietly. Otherwise you will 
-                        be redirected to a public game in <span class="redirection-countdown">15</span> seconds.  
+                        You invited <span class="username username_waiting teammate-username"></span> to play another game with you. 
+                        If your invitation will be accepted your game will start immediately. Otherwise you will 
+                        be redirected to a public game in <span class="redirection-countdown"></span> seconds.  
                     </div>
                     <div class="play-again-suggestion_text play-again-suggestion_answer collapse">
-                        <span class="username username_answer teammate-username"></span> suggested to play another game with you. 
-                        If you dont mind it press join button. Otherwise in 
-                        <span class="redirection-countdown">15</span> seconds you will be redirected to tables.
+                        <span class="username username_answer teammate-username"></span> invited you to play another game. 
+                        If you don't mind it press join button. Otherwise in 
+                        <span class="redirection-countdown"></span> seconds you will be redirected to tables.
                     </div>
                     <div class="btn-group btn-wrapper">
                         <button type="button" class="btn btn-outline-success game-result-btn game-result-btn_play-again">Play again</button>
@@ -189,9 +183,7 @@
         </div>
     </div>
     <script src="/js/socket.io.js"></script>
+    <script src="/js/timesync.min.js"></script> 
     <script src="/js/tables.js"></script>    
-    <script>
-        document.getElementsByClassName("back-to-tables")[0].onclick = () => {window.location.reload()};
-    </script>
 </body>
 </html>

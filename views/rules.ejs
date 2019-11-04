@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru-RU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Сапёр</Title>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/common.css">
+    <link rel="stylesheet" type="text/css" href="/css/rules.css">
+</head>
+<body>
+    <div class="bg">
+    </div>
+    <div class="main">
+        <%- include('partitials/header') %>
+
+        <div class="content">
+            <div class="rules-block">
+                <h1 class="main-header">Minesweeper rules</h1>
+                
+                <h2 class="sub-header">Quick Start</h2>
+                <p class="common-paragraph">You start with a board of squares. Some squares hide mines, others don't.  
+                Clicking a square containing mine will cost you life. To win you have to open every empty square. 
+                Clicking a square which doesn't have a bomb reveals the number of neighbouring squares containing bombs. Use this information to avoid bombs.
+                To mark a bomb right-click on it. If you open a square with 0 neighboring bombs, all its neighbors will automatically open. This can cause a large area to automatically open.</p>
+                <div class="columns">
+                    <div class="card rules-card" style="width:20rem;">
+                        <img class="card-img-top" src="images/good-start.png" alt="A very good start!">
+                        
+                        <div class="card-body">
+                            <p class="card-text">The good news is that you cannot die on you first move.</p>
+                        </div>
+                    </div>  
+                    <div class="card rules-card" style="width: 20rem;">
+                        <img class="card-img-top" src="images/bad-start.png" alt="A very good start!">
+                        
+                        <div class="card-body">
+                            <p class="card-text">...the bad news is that sometimes one step is not really much.</p>
+                        </div>
+                    </div>  
+                </div>    
+                <h4 class="sub-header">Good Luck and Have Fun!</h4>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

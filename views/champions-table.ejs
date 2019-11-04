@@ -37,29 +37,44 @@
                             <a class="btn btn-success singleplayer-records-dropdown-toggle" href="#" role="button" >
                                 Single player
                             </a> 
-                            <div class="dropdown-menu collapse singleplayer-records-dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-menu collapse singleplayer-records-dropdown-menu dropdown-menu_right" aria-labelledby="dropdownMenuLink">
                                 <a class="dropdown-item records_button_delegation" href="#" table-name="recordssingleplayer" param="easy" >Easy</a>
                                 <a class="dropdown-item records_button_delegation" href="#" table-name="recordssingleplayer" param="medium" >Medium</a>
                                 <a class="dropdown-item records_button_delegation" href="#" table-name="recordssingleplayer" param="hard" >Hard</a>
                             </div>
                         </div>
+                        
+                        <div class="dropdown records_button collapse table-choice-dropdown-menu">
+                            <a class="btn btn-success" href="#" role="button" >
+                                Tables
+                            </a> 
+                            <div class="dropdown-menu collapse dropdown-menu_right" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item records_button_delegation" href="#" table-name="users" >Personal records</a>
+                                <a class="dropdown-item records_button_delegation" href="#" table-name="recordstwoplayers" >Multiplayer</a>
+                                <a class="dropdown-item records_button_delegation" href="#" table-name="recordssingleplayer" param="easy" >Singleplayer: easy</a>
+                                <a class="dropdown-item records_button_delegation" href="#" table-name="recordssingleplayer" param="medium" >Singleplayer: medium</a>
+                                <a class="dropdown-item records_button_delegation" href="#" table-name="recordssingleplayer" param="hard" >Singleplayer: hard</a>
+                            </div>
+                        </div>
+
                     </div>
+
                     <div class="rank-star rank-star-records"></div>
 
                 </div>
                 <div class="content-main">
                     <div class="content-main-records">
-
+                        <div class="champions-table_record">
+                            <div class="champions-table_record_num"><div></div></div>
+                            <div class="champions-table_record_separator separator"></div>
+                            <div class="champions-table_record_username username">Username</div>
+                            <div class="rank">Rank</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        document.getElementsByClassName("singleplayer-records-dropdown-toggle")[0].onclick = event => {
-            document.getElementsByClassName("singleplayer-records-dropdown-menu")[0].classList.toggle("collapse");
-        }
-    </script>
     <script src="/js/champions-table.js"></script>
 </body>
 </html>
