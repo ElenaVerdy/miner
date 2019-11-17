@@ -1,10 +1,9 @@
-const domain                    = "192.168.1.123";
-const publicAddressForCORS      = `http://10.146.223.176:50`;
+const domain                    = `http://185.121.168.22:18109`;
 const express                   = require("express");
 const cookieParser              = require('cookie-parser');
 const app                       = express();
 const bodyParser                = require('body-parser');
-const server                    = app.listen(3000, ()=>{console.log(`server started on port 3000`)});
+const server                    = app.listen(18109, ()=>{console.log(`server started on port 3000`)});
 const io                        = require("socket.io")(server);
 const EventEmitter              = require('events');
 class MyEmitter extends EventEmitter {}
@@ -101,15 +100,14 @@ app.use(bodyParser.json());
 app.use(require('serve-favicon')(__dirname + '\\public\\images\\favicon.ico'));
 
 app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", publicAddressForCORS); 
+    res.header("Access-Control-Allow-Origin", domain); 
     res.header("Access-Control-Allow-Credentials", "true");
-    //res.header("Set-Cookie", "HttpOnly;Secure;SameSite=None");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
 
 app.use((req, res, next)=>{
-
+console.log(req.cookies)
     if (req.cookies.access_token) {
 
         let token = findUserByField("access_token", escape(req.cookies.access_token));
@@ -436,7 +434,6 @@ app.post("/login", (req, res) => {
                         if (err) {
                             throw Error(500);
                         }
-                        console.log(domain, access_token)
                         res.cookie("access_token", access_token, {
                             //domain,
                             maxAge: 1000 * 60 * 60 * 24 * 30,
@@ -458,7 +455,8 @@ app.post("/login", (req, res) => {
 })
 
 app.get("/GuestRequest", (req, res) => {
-    if (req.userInfo && req.userInfo.isLoggedIn) res.status(200).send("You are already logged in!");
+    if (req.userInfo && req.userInfo.isLoggedIn) 
+        return res.status(200).send("You are already logged in!");
 
     let guest_token = crypto.randomBytes(16)
     .toString('hex') 

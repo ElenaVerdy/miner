@@ -1,5 +1,5 @@
 let Authorization = function(){
-    let address = "http://192.168.1.123:3000";
+    let address = "http://185.121.168.22:18109";
     
     let auth = this;
 
@@ -173,7 +173,7 @@ let Authorization = function(){
         startAsGuest.onclick = ()=>{
             let http = new XMLHttpRequest();
             http.open("GET", `${address}/GuestRequest`);
-        http.withCredentials = true;
+            http.withCredentials = true;
 
             http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     

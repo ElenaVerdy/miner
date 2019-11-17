@@ -1,4 +1,4 @@
-let address = "http://192.168.1.123:3000";
+let address = "http://185.121.168.22:18109";
 let socket = io.connect(address);
 let multiplayer;
 const timeToAcceptSuggestion = 5000;
