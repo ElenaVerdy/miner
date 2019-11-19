@@ -12,6 +12,7 @@ const crypto                    = require("crypto");
 const multiplayer               = require("playingInit.js");
 const timesyncServer            = require('timesync/server');
 const { Pool }                  = require('pg');
+const path                      = require('path');
 
 const pool = new Pool({
     connectionString: "postgres://postgres:1234567@localhost:5432/minesweeper"
@@ -97,7 +98,8 @@ app.set("view engine", "ejs");
 
 app.use(bodyParser.json());
 
-app.use(require('serve-favicon')(__dirname + '\\public\\images\\favicon.ico'));
+//app.use(require('serve-favicon')(__dirname + '\\public\\images\\favicon.ico'));
+app.use(require('serve-favicon')(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", domain); 
@@ -107,7 +109,6 @@ app.use(function(req, res, next) {
 });
 
 app.use((req, res, next)=>{
-console.log(req.cookies)
     if (req.cookies.access_token) {
 
         let token = findUserByField("access_token", escape(req.cookies.access_token));
@@ -489,7 +490,8 @@ app.post("/join", (req, res) => {
 
     game.fieldSize = "multiplayer_large";
 
-    res.render("partitials/gameField", {
+    //res.render("partitials/gameField", {
+    res.render(path.join("partitials","gameField"), {
         game: game,
         player1: table.player1,
         player2: req.userInfo,
@@ -530,7 +532,8 @@ app.post("/newgame", (req, res) => {
 
     game.fieldSize = req.body.fieldSize;
 
-    res.render("partitials/gameField", {
+    //res.render("partitials/gameField", {
+    res.render(path.join("partitials", "gameField"), {
         game: game,
         player1: req.userInfo,
         player2: {},
