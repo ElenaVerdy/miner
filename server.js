@@ -483,10 +483,11 @@ app.get("/GuestRequest", (req, res) => {
 app.post("/join", (req, res) => {
     var table = multiplayer.joinGame(req.userInfo, req.body.gameId);
     
-    if (!table) {
-        res.status(404).send("The game wasn't found. It probably ended, please refresh the page.")
+    if (typeof table === "string") {
+        res.status(404).send(table)
         return;
     }
+
     var game = {
         singlePlayer: false,
         width: teamplayField.width,
@@ -497,7 +498,6 @@ app.post("/join", (req, res) => {
 
     game.fieldSize = "multiplayer_large";
 
-    //res.render("partitials/gameField", {
     res.render(path.join("partitials","gameField"), {
         game: game,
         player1: table.player1,
