@@ -13,14 +13,14 @@ const multiplayer               = require("playingInit.js");
 const timesyncServer            = require('timesync/server');
 const { Pool }                  = require('pg');
 const path                      = require('path');
-
+    
 
 const pool = new Pool({
     //connectionString: "postgres://postgres:1234567@localhost:5432/minesweeper"
     connectionString: "postgres://postgres:postgres@localhost:5432/miner"
 });
 
-const teamplayField             = {width: 40, height: 20, num: 160};
+const teamplayField             = {width: 40, height: 20, num: 18};
 const singlePlayerSmallField    = {width: 8, height: 8, num: 10};
 const singlePlayerMediumField   = {width: 16, height: 16, num: 40};
 const singlePlayerLargeField    = {width: 30, height: 16, num: 99};
@@ -32,7 +32,7 @@ const sha512 = function(password){
             .toString('hex') 
             .slice(0, 32);
 
-    var hash = crypto.createHmac('sha512', salt);
+    var hash = crypto.createHmac('sha512', salt); 
     hash.update(password);
     var value = hash.digest('hex');
     return {
@@ -42,10 +42,10 @@ const sha512 = function(password){
 };
 
 const verify = function(password, salt, fh) {
-    var hash = crypto.createHmac('sha512', salt);
+    var hash = crypto.createHmac('sha512', salt); 
     hash.update(password);
     var value = hash.digest('hex');
-
+    
     if (value === fh) return true;
     return false;
 };
@@ -69,26 +69,27 @@ function findUserByField(field, value) {
         return;
     }
 
-    let query = `SELECT * FROM users WHERE ${field} = '${value}';`;
+    let query = `SELECT * FROM miner.users WHERE ${field} = '${value}';`;
+
+query = "
 
     pool.connect((err, client, release) => {
         if (err) {
             return console.error('Error acquiring client', err.stack)
         }
         client.query(query, (err, result) => {
-
+            
             release();
-
+            
             if (err) {
-	        console.log(err);
+		console.log(err);
                 myEmitter.emit(`found${token}`, {error: true});
             } else {
-
                 myEmitter.emit(`found${token}`, result.rows);
 	    }
         })
     })
-
+    
     return token;
 };
 
@@ -174,7 +175,7 @@ app.get("/", (req, res)=>{
             privateGame: false,
             gameId: null
         });
-
+    
     } else {
         res.render("index", {game: {
             singlePlayer: true,
@@ -584,18 +585,19 @@ app.post("/new-singleplayer-record", (req, res) => {
         let query = `INSERT INTO recordssingleplayer (playerusername, timems, gametype) 
                                             values ('${req.userInfo.username}', '${req.body.timems}', '${req.body.gameType}') returning gameId`;
         if (err) {
-            console.log("Error while connecting to pool:", err);
+            console.log("inserting new record in singleplayer: ", err);
         }
 
         client.query(query, (err, result) => {
 
-	    if (err) {
-		return console.log("Error while inserting single player records", err);
-}
             let dbGameId = result.rows[0].gameid;
 
             release()
 
+            if (err) {
+                console.log(err);
+            }
+            
             pool.connect((err, client, release) => {
                 let query = `SELECT * FROM recordssingleplayer WHERE gametype = '${escape(req.body.gameType)}' ORDER BY timems ASC`;
                 if (err) {

@@ -125,9 +125,8 @@ let Authorization = function(){
             if (this.status === 401) return badCredentials();
             if (this.status === 500) return error(500);
             if (this.readyState !== 4 || this.status !== 200) return;
-            console.log(this.getAllResponseHeaders())
             
-            //window.location.reload();
+            window.location.reload();
         }
         http.send(JSON.stringify({
             username: DOM.inputs.login.value,
@@ -180,8 +179,8 @@ let Authorization = function(){
             http.onreadystatechange = function() {
                 if (this.status === 500) return error(500);
                 if (this.readyState !== 4 || this.status !== 200) return;
-                console.log(this.HEADERS_RECEIVED)
-                //window.location.reload();
+
+                window.location.reload();
             }
             http.send();
         }
