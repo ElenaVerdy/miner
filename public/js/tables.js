@@ -1,7 +1,7 @@
 let address = "http://192.99.166.26:80";
 let socket = io.connect(address);
 let multiplayer;
-const timeToAcceptSuggestion = 5000;
+const timeToAcceptSuggestion = 10000;
 
 //Only need this for the game start and replay suggestions. Recalc every two minutes. Mb reduce it further  
 var ts = timesync.create({
