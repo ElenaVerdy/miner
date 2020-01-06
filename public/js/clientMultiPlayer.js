@@ -40,8 +40,12 @@ function Multiplayer(socket) {
         if (data.player2touches) document.getElementsByClassName("player2touches")[0].innerHTML = data.player2touches;
     });
 
-    socket.on("error", data =>{
-        console.log("error", data);
+    socket.on("myError", data =>{
+        console.log("myError: ", data);
+    })
+
+    socket.on("error", data => {
+        console.log("error: ", data)
     })
 
     socket.on("gameOver", data => {
