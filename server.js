@@ -246,7 +246,7 @@ app.get("/records/:table", (req, res) => {
                             break;
                         }
 
-                    }   
+                    }
                 }
 
                 if (bestResult && typeof bestResult === "object") {
@@ -482,7 +482,7 @@ app.get("/GuestRequest", (req, res) => {
 
 app.post("/join", (req, res) => {
     var table = multiplayer.joinGame(req.userInfo, req.body.gameId);
-    
+
     if (typeof table === "string") {
         res.status(404).send(table)
         return;
@@ -518,13 +518,13 @@ app.post("/newgame", (req, res) => {
             case "Easy" :
                 fieldSizes = singlePlayerSmallField;
                 break;
-            
+
             case "Medium" :
-                fieldSizes = singlePlayerMediumField;                
+                fieldSizes = singlePlayerMediumField;
                 break;
-                
+
             case "Hard" :
-                fieldSizes = singlePlayerLargeField;                
+                fieldSizes = singlePlayerLargeField;
                 break;
         }
     } else {
@@ -614,9 +614,9 @@ app.post("/new-singleplayer-record", (req, res) => {
                     return;
                 }
                 client.query(query, (err, result) => {
-    
+
                     release();
-    
+
                     if (err) {
                         console.log("selecting top records from singleplayer: ", err);
                         res.status(500).send(serverErrorTxt);
@@ -631,14 +631,13 @@ app.post("/new-singleplayer-record", (req, res) => {
                     currentGame = result.rows[k];
                     currentGame.num = k;
                     currentGame.isCurrentGame = true;
-                
+
                     result.rows.splice(10);
                     if (k >= 10) result.rows.push(currentGame);
-                    
+
                     res.send(JSON.stringify(result.rows));
                 })
             })
-            
 
         })
     })
