@@ -1,9 +1,9 @@
-const domain                    = `http://185.121.168.22:18109`;
+const domain                    = `http://192.99.166.26:22`;
 const express                   = require("express");
 const cookieParser              = require('cookie-parser');
 const app                       = express();
 const bodyParser                = require('body-parser');
-const server                    = app.listen(18109, ()=>{console.log(`server started on port 3000`)});
+const server                    = app.listen(22, ()=>{console.log(`server started on port 22`)});
 const io                        = require("socket.io")(server);
 const EventEmitter              = require('events');
 class MyEmitter extends EventEmitter {}
@@ -15,7 +15,8 @@ const { Pool }                  = require('pg');
 const path                      = require('path');
 
 const pool = new Pool({
-    connectionString: "postgres://postgres:1234567@localhost:5432/minesweeper"
+    //connectionString: "postgres://postgres:1234567@localhost:5432/minesweeper"
+    connectionString: "postgres://postgres:postgres@localhost:5432/miner"
 });
 
 const teamplayField             = {width: 40, height: 20, num: 18};
@@ -102,7 +103,7 @@ app.use(bodyParser.json());
 app.use(require('serve-favicon')(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
 app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", domain); 
+    res.header("Access-Control-Allow-Origin", "http:/helloworld.com"); 
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
