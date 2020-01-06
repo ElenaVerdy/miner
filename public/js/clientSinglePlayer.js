@@ -85,7 +85,7 @@
 
         http.send(JSON.stringify({
             gameType: table.parentElement.getAttribute("fieldSize").toLowerCase(),
-            timems: endTimeMs - startTimeMs
+            timems: (endTimeMs - startTimeMs) ^ 0
         }));
     
     }

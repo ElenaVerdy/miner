@@ -14,6 +14,8 @@ const timesyncServer            = require('timesync/server');
 const { Pool }                  = require('pg');
 const path                      = require('path');
 
+const serverErrorTxt = "There has been a server error. Please reload the page and try again!";
+
 
 const pool = new Pool({
     //connectionString: "postgres://postgres:1234567@localhost:5432/minesweeper"
@@ -55,7 +57,7 @@ function findUserByField(field, value) {
     let token = "" + (Math.random()*100000000 ^ 0);
 
     if (!field || !value) {
-        myEmitter.emit(`found${token}`, {error: true});
+        myEmitter.emit(`found${token}`, {error: true, text: "wrong function call"});
         return;
     }
 
@@ -65,7 +67,7 @@ function findUserByField(field, value) {
     });
 
     if (!validfield) {
-        myEmitter.emit(`found${token}`, {error: true});
+        myEmitter.emit(`found${token}`, {error: true, text: "wrong function call"});
         return;
     }
 
@@ -73,17 +75,18 @@ function findUserByField(field, value) {
 
     pool.connect((err, client, release) => {
         if (err) {
-            return console.error('Error acquiring client', err.stack)
+            myEmitter.emit(`found${token}`, {error: true, text: "wrong function call", stack: err.stack})
+            console.error('Error acquiring client', err.stack);
+            return;
         }
         client.query(query, (err, result) => {
 
             release();
 
             if (err) {
-	        console.log(err);
+	            console.log(err);
                 myEmitter.emit(`found${token}`, {error: true});
             } else {
-
                 myEmitter.emit(`found${token}`, result.rows);
 	    }
         })
@@ -102,11 +105,9 @@ app.set("view engine", "ejs");
 
 app.use(bodyParser.json());
 
-//app.use(require('serve-favicon')(__dirname + '\\public\\images\\favicon.ico'));
 app.use(require('serve-favicon')(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "http:/helloworld.com"); 
+app.use(function(req, res, next) { 
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
@@ -210,7 +211,7 @@ app.get("/records/:table", (req, res) => {
 
         if (err) {
             console.log(err)
-            return res.status(500).send("There has been a server error. Please reload the page and try again!");
+            return res.status(500).send(serverErrorTxt);
         }
         client.query(query, (err, result) => {
 
@@ -218,7 +219,7 @@ app.get("/records/:table", (req, res) => {
 
             if (err) {
                 console.log(err)
-                return res.status(500).send("There has been a server error. Please reload the page and try again!");
+                return res.status(500).send(serverErrorTxt);
             }
 
             let bestResult = null;
@@ -297,11 +298,10 @@ app.post("/check", (req, res) => {
     
     myEmitter.once(`found${token}`, result=>{
         if (result.error) {
-	    res.sendStatus(500);
-
+    	    res.status(500).send(serverErrorTxt);
         } else {
             res.send(JSON.stringify(result))
-	}
+	    }
     });
 
 });
@@ -331,20 +331,22 @@ app.post("/reg", (req, res) => {
     promise
     .then(result => {
         if (result.rows.length) {
-            if (result.rows[0].username === req.body.username) res.sendStatus(444);
-            else res.sendStatus(466);
+            if (result.rows[0].username === req.body.username) res.status(444).send("Username already in use!"); 
+            else res.status(466).send("Email already in use!");
             return;
         }
         pool.connect((err, client, done) => {
 
-            const shouldAbort = (err) => {
+            const shouldAbort = (err, res) => {
               if (err) {
                 console.error('Error in transaction', err.stack)
                 client.query('ROLLBACK', (err) => {
                   if (err) {
                     console.error('Error rolling back client', err.stack)
                   }
-                  done()
+
+                  res.status(500).send(serverErrorTxt)
+                  done();
                 })
               }
 
@@ -352,22 +354,19 @@ app.post("/reg", (req, res) => {
             }
           
             client.query('BEGIN', (err) => {
-                if (shouldAbort(err)) throw new Error();
+                if (shouldAbort(err, res)) return;
                 
                 let query = `INSERT INTO users (username, email) VALUES ('${escape(req.body.username)}', '${escape(req.body.email)}') RETURNING id;`;
         
                 client.query(query, (err, result) => {
-                    if (shouldAbort(err)) throw new Error();
+                    if (shouldAbort(err, res)) return;
                     let pw = sha512(req.body.password);
 
                     client.query(`INSERT INTO passwords (id, st, fh) VALUES (${result.rows[0].id}, '${pw.salt}', '${pw.passwordHash}')`, (err, result) => {
-                        if (shouldAbort(err)) throw new Error();
+                        if (shouldAbort(err, res)) return;
           
                         client.query('COMMIT', (err) => {
-                            if (err) {
-                            console.error('Error committing transaction', err.stack)
-                            throw new Error();
-                            }
+                            if (shouldAbort(err, res)) return;
                             res.sendStatus(200);
                             done();
                         })
@@ -377,7 +376,7 @@ app.post("/reg", (req, res) => {
         })
     })
     .catch(()=>{
-        res.sendStatus(500);
+        res.status(500).send(serverErrorTxt);
     })
 });
 
@@ -581,25 +580,38 @@ app.post("/new-singleplayer-record", (req, res) => {
     if (req.userInfo.isGuest) req.userInfo.username = "Guest";
     pool.connect((err, client, release) => {
 
+        if (req.body.timems % 1 !== 0 || !(~["easy", "medium", "hard"].indexOf(req.body.gameType))) {
+            console.log("/new-singleplayer-record: bad parameters");
+            res.status(400).send("Bad parameters");
+            return;
+        }
+
         let query = `INSERT INTO recordssingleplayer (playerusername, timems, gametype) 
                                             values ('${req.userInfo.username}', '${req.body.timems}', '${req.body.gameType}') returning gameId`;
         if (err) {
-            console.log("Error while connecting to pool:", err);
+            console.log("Error occured while connecting to pool:", err);
+            res.status(500).send("Error occured while connecting to pool.");
+            return;
         }
 
         client.query(query, (err, result) => {
 
-	    if (err) {
-		return console.log("Error while inserting single player records", err);
-}
+            if (err) {
+                console.log("Error while inserting single player records.", err);
+                res.status(500).send("Error while inserting single player records");
+                return;
+            }
+
             let dbGameId = result.rows[0].gameid;
 
-            release()
+            release();
 
             pool.connect((err, client, release) => {
                 let query = `SELECT * FROM recordssingleplayer WHERE gametype = '${escape(req.body.gameType)}' ORDER BY timems ASC`;
                 if (err) {
-                    console.log(err)
+                    console.log("Error occured while connecting to pool:", err);
+                    res.status(500).send("Error occured while connecting to pool.");
+                    return;
                 }
                 client.query(query, (err, result) => {
     
@@ -607,6 +619,7 @@ app.post("/new-singleplayer-record", (req, res) => {
     
                     if (err) {
                         console.log("selecting top records from singleplayer: ", err);
+                        res.status(500).send(serverErrorTxt);
                         return;
                     }
 
