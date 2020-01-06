@@ -8,6 +8,7 @@
     let player1touches = document.getElementsByClassName("player1touches")[0];
     let timer = new Timer;
 
+    let isMainPage = !!document.getElementsByClassName("description")[0].offsetParent;
 
     function setMinesLeft(minesNum){
         let minesLeft = document.getElementsByClassName("mines-left")[0];
@@ -40,7 +41,7 @@
     }
 
     function congratulations(){
-        endTimeMs = ts.now();
+        endTimeMs = isMainPage ? new Date().valueOf() : ts.now();
         timer.stop();
         
         field.forEach(item => {
@@ -50,6 +51,9 @@
         });
         setMinesLeft(0);
 
+        if (isMainPage)
+            return;
+            
         let http = new XMLHttpRequest();
 
         http.open("POST", `${address}/new-singleplayer-record`);
