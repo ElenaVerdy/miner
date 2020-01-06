@@ -1,9 +1,9 @@
-const domain                    = `http://192.99.166.26:3001`;
+//const domain                    = `http://192.99.166.26:80`;
 const express                   = require("express");
 const cookieParser              = require('cookie-parser');
 const app                       = express();
 const bodyParser                = require('body-parser');
-const server                    = app.listen(3001, ()=>{console.log(`server started on port 3001`)});
+const server                    = app.listen(80, ()=>{console.log(`server started on port 80`)});
 const io                        = require("socket.io")(server);
 const EventEmitter              = require('events');
 class MyEmitter extends EventEmitter {}

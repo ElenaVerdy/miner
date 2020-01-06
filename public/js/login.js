@@ -1,5 +1,5 @@
 let Authorization = function(){
-    let address = "http://192.99.166.26:22";
+    let address = "http://192.99.166.26:80";
     
     let auth = this;
 
