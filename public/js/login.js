@@ -1,9 +1,8 @@
 let Authorization = function(){
-    let address = "http://192.99.166.26:80";
-    
+    let address = `http://${window.location.hostname}:${window.location.port || 80}`;
     let auth = this;
 
-    const warningTimers = {};        
+    const warningTimers = {};
     let DOM = {
         warnings: {
             badLogin:           document.getElementsByClassName("bad-login")[0],
@@ -29,7 +28,7 @@ let Authorization = function(){
     }
 
     let isSignUpModeOn = false;
-    
+
     let forSigningUpElements = [].slice.call(document.getElementsByClassName("for-signing-up"));
     var validation = new Validation();
     validation.init();

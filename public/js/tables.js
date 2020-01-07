@@ -1,4 +1,5 @@
-let address = "http://192.99.166.26:80";
+let address = `http://${window.location.hostname}:${window.location.port || 80}`;
+
 let socket = io.connect(address);
 let multiplayer;
 const timeToAcceptSuggestion = 10000;
@@ -104,7 +105,25 @@ const WaitingModal = function (){
     this.hide = hide;
 };
 
+
+function BlockBtns() {
+    let btnArray = [];
+
+    this.isBlocked = (element) => {
+        return !!~btnArray.indexOf(element);
+    }
+
+    this.abortBlocks = ()=> {
+        btnArray.length = 0;
+    }
+    
+    this.block = (element) => {
+        btnArray.push(element);
+    }
+}
+
 let waitingModal = new WaitingModal();
+let blockBtns = new BlockBtns();
 
 //singleplayer
 document.getElementsByClassName("singleplayer-dropdown-menu")[0].onclick = event => {
@@ -141,13 +160,17 @@ document.getElementsByClassName("singleplayer-dropdown-menu")[0].onclick = event
 //multiplayer new game
 document.body.addEventListener("click", event => {
     if (!event.target.classList.contains("delegation_start-game")) return;
-
+    
     if (event.target.classList.contains("delegation_start-game_singleplayer")) {
         document.getElementById("gameResults").style.display = "none";
         document.getElementsByClassName("restart")[0].click();
-
+        
         return;
     }
+
+    if (blockBtns.isBlocked(event.target)) {console.log(123);return;}
+    
+    blockBtns.block(event.target);
 
     const isPrivate = event.target.classList.contains("private-game");
 
@@ -157,9 +180,13 @@ document.body.addEventListener("click", event => {
     http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8')
     http.onreadystatechange = function() {
         
-        if (this.status === 500) return error(500);
-
+        if (this.status === 500) {
+            console.error(this.response)
+            return error(500);
+        }
         if (this.readyState !== 4 || this.status !== 200) return;
+
+        blockBtns.abortBlocks();
 
         let gameId_old = event.target.classList.contains("play-again") ? document.getElementById("table").getAttribute("gameid") : null;
 
@@ -225,19 +252,28 @@ document.body.addEventListener("click", event => {
 //multiplayer join game
 document.body.addEventListener("click", event => {
     if (!event.target.classList.contains("delegation_join-button")) return;
-    
+
+    if (blockBtns.isBlocked(event.target)) return;
+
+    blockBtns.block(event.target);
+
     let http = new XMLHttpRequest();
 
     http.open("POST", `${address}/join`);
     http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8')
     http.onreadystatechange = function() {
         
-        if (this.status === 500) return error(500);
-        
+        if (this.status === 500) {
+            console.error(this.response)
+            return error(500);
+        }
         if (this.readyState === 3 && this.status === 404) {
+            console.error("join post request returned with 404 status")
             return error(404);
         }
         if (this.readyState !== 4 || this.status !== 200) return;
+
+        blockBtns.abortBlocks();
 
         document.getElementsByClassName("content-page")[0].innerHTML = this.response;
 
@@ -398,8 +434,8 @@ socket.on("ready", data => {
         }, msLeft % 1000);
     });
 })()
+
 socket.on("playerLeftBeforeTheGameStarted", data => {
-console.log('left');
     updatePlayersInfo(data);
     waitingModal.lookingForOtherPlayer();
 });

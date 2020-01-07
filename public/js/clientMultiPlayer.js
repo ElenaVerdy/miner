@@ -16,13 +16,13 @@ function Multiplayer(socket) {
         countDown = new Timer();
         minesLeft = new MinesLeft();
     }
-    
+
     this.startOver = start;
 
     start();
 
     function fieldUpdate(fieldUpdate){
-        
+
         for (cellNum in fieldUpdate) {
             fieldUpdate[cellNum]["cell-closed"] === false ? field[cellNum].classList.remove("cell-closed") : "";
             fieldUpdate[cellNum]["cell-opened"] ? field[cellNum].classList.add("cell-opened") : field[cellNum].classList.remove("cell-opened");
@@ -68,7 +68,7 @@ function Multiplayer(socket) {
 
             document.getElementsByClassName("records")[0].innerHTML = data.result.reduce((sum, current, i) => {
                 if (i == 10) sum += `<div class="break">.  .  .</div>`
-    
+
                 return sum + `<div class="record-item ${current.isCurrentGame ? "current-game": ""}">
                             <div class="record-item_num"><div class="float_right">${current.isCurrentGame ? current.num + 1 : i + 1}</div></div>
                             <div class="record-item_player1username">${current.player1username}</div>
