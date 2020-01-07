@@ -7,8 +7,7 @@
     let field = [].slice.call(document.getElementsByClassName("cell"));
     let player1touches = document.getElementsByClassName("player1touches")[0];
     let timer = new Timer;
-
-    let isMainPage = !!document.getElementsByClassName("description")[0];
+    let isMainPage = !!document.getElementsByClassName("description")[0].offsetParent;
 
     function setMinesLeft(minesNum){
         let minesLeft = document.getElementsByClassName("mines-left")[0];

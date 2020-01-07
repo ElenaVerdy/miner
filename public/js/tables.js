@@ -399,6 +399,7 @@ socket.on("ready", data => {
     });
 })()
 socket.on("playerLeftBeforeTheGameStarted", data => {
+console.log('left');
     updatePlayersInfo(data);
     waitingModal.lookingForOtherPlayer();
 });

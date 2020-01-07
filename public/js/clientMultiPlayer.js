@@ -163,7 +163,8 @@ function Multiplayer(socket) {
     }
 
     table.onmousedown = tableClickHandler; 
-    table.oncontextmenu = (event)=>{
+console.log(table.parentElement.parentElement);
+    table.parentElement.parentElement.oncontextmenu = (event)=>{
         if (!event.target.classList.contains("cell-closed")) return false;
         if (!document.getElementsByClassName("cell-opened").length) return false;
 
