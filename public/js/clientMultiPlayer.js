@@ -33,7 +33,7 @@ function Multiplayer(socket) {
     }
 
     socket.on("fieldUpdated", data => {
-        if (data.firstMove) countDown.start();
+        if (data.gameStart) countDown.start(data.gameStart);
         fieldUpdate(data.fieldUpdate);
 
         if (data.player1touches) document.getElementsByClassName("player1touches")[0].innerHTML = data.player1touches;
@@ -163,8 +163,8 @@ function Multiplayer(socket) {
     }
 
     table.onmousedown = tableClickHandler; 
-console.log(table.parentElement.parentElement);
-    table.parentElement.parentElement.oncontextmenu = (event)=>{
+    
+    table.parentElement.parentElement.parentElement.oncontextmenu = (event)=>{
         if (!event.target.classList.contains("cell-closed")) return false;
         if (!document.getElementsByClassName("cell-opened").length) return false;
 
@@ -180,16 +180,36 @@ console.log(table.parentElement.parentElement);
 function Timer(){
     let timer = document.getElementsByClassName("timer")[0];
     let current = 999;
-    let timerId;
+    let timerId, outerTimerId;
+/*
 
-    this.start = () => {
-        timer.innerHTML = current = 999;
-        timerId = setInterval(() => timer.innerHTML = current--, 1000)
+outerTimer = setTimeout(function(){
+    
+    timer = setInterval(()=>{
+        if (!timerHTML.offsetParent) {
+            clearInterval(timer);
+            clearTimeout(outerTimer);
+            return;                   
+        }
+        
+        timerHTML.innerHTML = timerHTML.innerHTML - 1;
+    }, 1000)
+}, msLeft % 1000);
+
+*/
+    this.start = (startTime) => {
+        let msLeft = startTime + 999000 - ts.now(); 
+        timer.innerHTML = current = msLeft / 1000 ^ 0;
+        
+        outerTimerId = setTimeout(function(){
+            timerId = setInterval(() => timer.innerHTML = current--, 1000)
+        }, msLeft % 1000)
     };
     this.default = () =>{
         timer.innerHTML = current = 999;
     }
     this.stop = () => {
-        clearTimeout(timerId);
+        clearInterval(timerId);
+        clearTimeout(outerTimerId);
     }
 }

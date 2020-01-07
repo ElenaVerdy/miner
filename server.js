@@ -17,8 +17,8 @@ const serverErrorTxt = "There has been a server error. Please reload the page an
 
 
 const pool = new Pool({
-    connectionString: "postgres://postgres:1234567@localhost:5432/minesweeper"
-    // connectionString: "postgres://postgres:postgres@localhost:5432/miner"
+    //connectionString: "postgres://postgres:1234567@localhost:5432/minesweeper"
+    connectionString: "postgres://postgres:postgres@localhost:5432/miner"
 });
 
 const teamplayField             = {width: 40, height: 20, num: 160};

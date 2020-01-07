@@ -168,7 +168,7 @@ document.body.addEventListener("click", event => {
         return;
     }
 
-    if (blockBtns.isBlocked(event.target)) {console.log(123);return;}
+    if (blockBtns.isBlocked(event.target)) return;
     
     blockBtns.block(event.target);
 
