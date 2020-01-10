@@ -120,11 +120,13 @@ let Authorization = function(){
         http.open("POST", `${address}/login`);
         http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         http.withCredentials = true;
+        
         http.onreadystatechange = function() {
-            if (this.status === 401) return badCredentials();
+            if (this.status === 401) {
+                return badCredentials();
+            }
             if (this.status === 500) return error(500);
             if (this.readyState !== 4 || this.status !== 200) return;
-            
             window.location.reload();
         }
         http.send(JSON.stringify({

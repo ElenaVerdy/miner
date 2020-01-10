@@ -359,6 +359,9 @@ select{
     border-radius: 3px;
     background-color: rgba(0, 255, 0, 0.2)
 }
+.records_teammate-left-msg{
+    display: none;
+}
 ::-webkit-scrollbar {
     width: 6px;
     height: 5px;
@@ -391,8 +394,14 @@ select{
     .content-page-ingame{
         height: auto;
     }
+    .modal-wide{
+        max-width: auto;
+    }
 }
 @media(max-width: 750px) {
+    .record-item_date{
+        display: none;
+    }
     .content-page{
         width: 98%;
         height: 98%;

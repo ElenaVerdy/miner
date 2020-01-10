@@ -17,8 +17,8 @@ const serverErrorTxt = "There has been a server error. Please reload the page an
 
 
 const pool = new Pool({
-    //connectionString: "postgres://postgres:1234567@localhost:5432/minesweeper"
-    connectionString: "postgres://postgres:postgres@localhost:5432/miner"
+    connectionString: "postgres://postgres:1234567@localhost:5432/minesweeper"
+    //connectionString: "postgres://postgres:postgres@localhost:5432/miner"
 });
 
 const teamplayField             = {width: 40, height: 20, num: 160};
@@ -154,9 +154,7 @@ app.use((req, res, next)=>{
 function deleteCookies(res, cookieNames) {
     cookieNames.forEach(cookie => {
         res.cookie(cookie, "null", {
-            maxAge: 1,
-            sameSite: "none"
-            //domain
+            maxAge: 1
         })
     });
 }
@@ -183,17 +181,20 @@ app.get("/", (req, res)=>{
             num: 15
             },
             isLoggedIn: false,
+            isGuest: false,
             forceToLogIn: false
         });
     }
 });
 
 app.get("/champions-table", (req, res) => {
-    res.render("champions-table", {isLoggedIn: req.userInfo && req.userInfo.isLoggedIn});
+    res.render("champions-table", {isLoggedIn: req.userInfo && req.userInfo.isLoggedIn, 
+                                    isGuest: req.userInfo && req.userInfo.isGuest});
 })
 
 app.get("/rules", (req, res) => {
-    res.render("rules", {isLoggedIn: req.userInfo && req.userInfo.isLoggedIn});
+    res.render("rules", {isLoggedIn: req.userInfo && req.userInfo.isLoggedIn,
+                        isGuest: req.userInfo && req.userInfo.isGuest});
 })
 
 app.get("/records/:table", (req, res) => {
@@ -267,6 +268,9 @@ app.get("/records/:table", (req, res) => {
 })
 
 app.get("/tablesInfo", (req, res) => {
+
+    if (!req.userInfo) return res.sendStatus(403);
+
     let tables = multiplayer.getTablesForUser(req.userInfo.username);
     let page = +req.query.page;
 
@@ -427,24 +431,23 @@ app.post("/login", (req, res) => {
                 .slice(0, 32);
                 
                 let query = `UPDATE users SET access_token = '${access_token}' WHERE id = '${result.rows[0].id}'`;
-        
                 pool.connect((err, client, done) => {
-        
+                    
                     if (err) {
                         return console.error('Error acquiring client', err.stack)
                     }
-        
+                    
                     client.query(query, (err, result) => {
-        
+                        
                         done()
-        
+                        
                         if (err) {
                             throw Error(500);
                         }
+
                         res.cookie("access_token", access_token, {
                             //domain,
-                            maxAge: 1000 * 60 * 60 * 24 * 30,
-                            sameSite: "none"
+                            maxAge: 1000 * 60 * 60 * 24 * 30
                         });
                         
                         res.sendStatus(200);        
@@ -471,9 +474,7 @@ app.get("/GuestRequest", (req, res) => {
 
     res.cookie("guest_token", guest_token, {
         //domain,
-        maxAge: 1000 * 60 * 60 * 24,
-        sameSite: "none"
-
+        maxAge: 1000 * 60 * 60 * 24
     });
 
     res.send();
@@ -538,7 +539,6 @@ app.post("/newgame", (req, res) => {
 
     game.fieldSize = req.body.fieldSize;
 
-    //res.render("partitials/gameField", {
     res.render(path.join("partitials", "gameField"), {
         game: game,
         player1: req.userInfo,
@@ -557,6 +557,7 @@ app.get("/private/:gameid", (req, res) => {
             num: 15
             },
             isLoggedIn: false,
+            isGuest: false,
             forceToLogIn: true
         });
 

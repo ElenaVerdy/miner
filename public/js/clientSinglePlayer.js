@@ -70,7 +70,7 @@
             document.getElementsByClassName("ranks-change")[0].style.display = "none";
             document.getElementsByClassName("game-result")[0].innerHTML = "Congratulations";
             document.getElementsByClassName("records")[0].innerHTML = data.reduce((sum, current, i) => {
-                if (i == 10) sum += `<div class="break">.  .  .</div>`
+                if (i == 10 && current.num !== 10) sum += `<div class="break">.  .  .</div>`
 
                 return sum + `<div class="record-item ${current.isCurrentGame ? "current-game": ""}">
                             <div class="record-item_num"><div class="float_right">${current.isCurrentGame ? current.num + 1 : i + 1}</div></div>

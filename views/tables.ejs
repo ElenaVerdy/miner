@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Сапёр</Title>
+
     <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/css/common.css">
     <link rel="stylesheet" type="text/css" href="/css/tables.css">
-    <link rel="stylesheet" href="/css/minesweeper.css">
+    <link rel="stylesheet" type="text/css" href="/css/minesweeper.css">
 </head>
 <body>
+    <link rel="preload" type="text/css" href="/css/bootstrap.min.css" as="style">
     <div class="modal" id="serverError" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -65,6 +67,7 @@
                         
                     </div>
                     <div class="records"></div>
+                    <div class="records_teammate-left-msg">Your teammate left</div>
                     <div class="btn-group btn-wrapper">
                         <button type="button" class="btn btn-outline-success game-result-btn delegation_start-game private-game play-again">Play again</button>
                         <button type="button" class="btn btn-outline-success game-result-btn"><a href="/" class="link-cleared">Tables</a></button>

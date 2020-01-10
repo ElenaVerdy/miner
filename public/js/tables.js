@@ -363,7 +363,8 @@ socket.on("ready", data => {
             }
             playAgainSuggestionText = null;
         } else {
-            error(500);
+            document.getElementsByClassName("records_teammate-left-msg")[0].style.display = "block";
+            document.getElementsByClassName("delegation_start-game")[0].setAttribute("disabled", "disabled")
         }
     });
 

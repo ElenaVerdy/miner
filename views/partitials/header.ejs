@@ -4,7 +4,7 @@
     <a class="dropdown-item" href="/">Play</a>
     <a class="dropdown-item" href="/champions-table">Champions table</a>
     <a class="dropdown-item" href="/rules">Rules</a>
-    <% if (isLoggedIn) { %>
+    <% if (isLoggedIn || isGuest) { %>
       <div class="dropdown-divider"></div>
       <a class="dropdown-item logout" href="#">Logout</a>
     <% }; %>
@@ -14,12 +14,13 @@
   <div class="menu-item"><a class="nav-link menu-item" tabindex="1" href="/">Play</a></div>
   <div class="menu-item"><a class="nav-link menu-item" tabindex="2" href="/champions-table">Champions table</a></div>
   <div class="menu-item"><a class="nav-link menu-item" tabindex="3" href="/rules">Rules</a></div>
-  <% if (isLoggedIn) { %>
+  <% if (isLoggedIn || isGuest) { %>
     <div class="menu-item ml-auto"><a class="nav-link menu-item logout" tabindex="4" href="#">logout</a></div>
     <script>
       [].slice.call(document.getElementsByClassName("logout")).forEach(item=>{
         item.onclick = ()=>{
         document.cookie = 'access_token=; expires=' + new Date().toGMTString()+";";
+        document.cookie = 'guest_token=; expires=' + new Date().toGMTString()+";";
         window.location.reload();
       }
     });
