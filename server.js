@@ -538,7 +538,7 @@ app.post("/newgame", (req, res) => {
     game.gameId = game.singlePlayer ? undefined : multiplayer.createNewTable(req.userInfo, req.body.private).gameId;
 
     game.fieldSize = req.body.fieldSize;
-
+console.log("render shit")
     res.render(path.join("partitials", "gameField"), {
         game: game,
         player1: req.userInfo,
