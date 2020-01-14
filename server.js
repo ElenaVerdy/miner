@@ -13,6 +13,12 @@ const timesyncServer            = require('timesync/server');
 const { Pool }                  = require('pg');
 const path                      = require('path');
 
+const blocked                   = require("blocked-at");
+
+blocked((time, stack) => {
+    console.log(`Blocked for ${time}ms, operation started here:`, stack);
+})
+
 const serverErrorTxt = "There has been a server error. Please reload the page and try again!";
 
 

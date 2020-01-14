@@ -103,23 +103,24 @@ function Multiplayer(socket) {
                 document.getElementsByClassName("rank-change_added_player2")[0].innerHTML =
                 document.getElementsByClassName("rank-subtracted_player2")[0].innerHTML   = "";
 
-                if (data.player1.delta >= 0) {
-                    document.getElementsByClassName("rank-change_added_player1")[0].innerHTML = data.player1.delta; 
-                } else {
-                    document.getElementsByClassName("rank-subtracted_player1")[0].innerHTML = Math.abs(data.player1.delta);                     
+                if (data.player1.delta !== undefined) {
+                    if (data.player1.delta >= 0) {
+                        document.getElementsByClassName("rank-change_added_player1")[0].innerHTML = data.player1.delta; 
+                    } else {
+                        document.getElementsByClassName("rank-subtracted_player1")[0].innerHTML = Math.abs(data.player1.delta);                     
+                    }
                 }
 
-                if (data.player2.delta >= 0) {
-                    document.getElementsByClassName("rank-change_added_player2")[0].innerHTML = data.player2.delta; 
-                } else {
-                    document.getElementsByClassName("rank-subtracted_player2")[0].innerHTML = Math.abs(data.player2.delta);                     
+                if (data.player1.delta !== undefined) {
+                    if (data.player2.delta >= 0) {
+                        document.getElementsByClassName("rank-change_added_player2")[0].innerHTML = data.player2.delta; 
+                    } else {
+                        document.getElementsByClassName("rank-subtracted_player2")[0].innerHTML = Math.abs(data.player2.delta);                     
+                    }
                 }
 
                 rankUpdateInfo = null;
             }
-    
-    
-    
     
         }
     //})()
