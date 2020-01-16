@@ -5,6 +5,10 @@
     background-color: blanchedalmond;
     border:solid black;
 }
+.playing-area {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
 #dialog{
     width: 30vw;
     min-width: 300px;    
