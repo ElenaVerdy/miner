@@ -31,7 +31,7 @@ const singlePlayerSmallField    = {width: 8, height: 8, num: 10};
 const singlePlayerMediumField   = {width: 16, height: 16, num: 40};
 const singlePlayerLargeField    = {width: 30, height: 16, num: 99};
 
-io.set('origins', 'http://192.99.166.26:8080/');
+//io.set('origins', 'http://192.99.166.26:8080/');
 
 multiplayer.run(io, pool, teamplayField);
 
