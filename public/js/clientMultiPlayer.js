@@ -24,10 +24,17 @@ function Multiplayer(socket) {
     function fieldUpdate(fieldUpdate){
 
         for (cellNum in fieldUpdate) {
-            fieldUpdate[cellNum]["cell-closed"] === false ? field[cellNum].classList.remove("cell-closed") : "";
-            fieldUpdate[cellNum]["cell-opened"] ? field[cellNum].classList.add("cell-opened") : field[cellNum].classList.remove("cell-opened");
-            fieldUpdate[cellNum].flag ? field[cellNum].classList.add("flag", fieldUpdate[cellNum].flag) : field[cellNum].classList.remove("flag", "flag1", "flag2");
-            fieldUpdate[cellNum].num ? field[cellNum].innerHTML = fieldUpdate[cellNum].num : "";
+            let cell = fieldUpdate[cellNum];
+            let fieldCell = field[cellNum];
+
+            cell["cell-closed"] === false   ? fieldCell.classList.remove("cell-closed")     : "";
+            cell["cell-opened"]             ? fieldCell.classList.add("cell-opened")        : fieldCell.classList.remove("cell-opened");
+            cell.flag                       ? fieldCell.classList.add("flag", cell.flag)    : fieldCell.classList.remove("flag", "flag1", "flag2");
+            cell.num                        ? fieldCell.innerHTML = cell.num                : "";
+
+            if (cell["cell-closed"] === false || cell["cell-opened"] || cell.num)
+                fieldCell.classList.remove("flag", "flag1", "flag2");
+
         }
         minesLeft.setCurrent();
     }
@@ -88,6 +95,7 @@ function Multiplayer(socket) {
         
         socket.on("rankUpdated", rankInfoUpdated);
         function rankInfoUpdated(data){
+            
             if (!document.getElementsByClassName("ranks-change")[0].offsetParent) {
                 rankUpdateInfo = data;
             } else {
@@ -111,7 +119,7 @@ function Multiplayer(socket) {
                     }
                 }
 
-                if (data.player1.delta !== undefined) {
+                if (data.player2.delta !== undefined) {
                     if (data.player2.delta >= 0) {
                         document.getElementsByClassName("rank-change_added_player2")[0].innerHTML = data.player2.delta; 
                     } else {

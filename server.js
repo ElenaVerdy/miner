@@ -2,7 +2,7 @@ const express                   = require("express");
 const cookieParser              = require('cookie-parser');
 const app                       = express();
 const bodyParser                = require('body-parser');
-const server                    = app.listen(80, ()=>{console.log(`server started on port 80`)});
+const server                    = app.listen(8080, ()=>{console.log(`server started on port 8080`)});
 const io                        = require("socket.io")(server);
 const EventEmitter              = require('events');
 class MyEmitter extends EventEmitter {}
@@ -13,17 +13,16 @@ const timesyncServer            = require('timesync/server');
 const { Pool }                  = require('pg');
 const path                      = require('path');
 
-const blocked                   = require("blocked-at");
+//const blocked                   = require("blocked-at");
 
-blocked((time, stack) => {
+/*blocked((time, stack) => {
     console.log(`Blocked for ${time}ms, operation started here:`, stack);
-})
+})*/
 
 const serverErrorTxt = "There has been a server error. Please reload the page and try again!";
 
 
 const pool = new Pool({
-    //connectionString: "postgres://postgres:1234567@localhost:5432/minesweeper"
     connectionString: "postgres://postgres:postgres@localhost:5432/miner"
 });
 
@@ -32,7 +31,10 @@ const singlePlayerSmallField    = {width: 8, height: 8, num: 10};
 const singlePlayerMediumField   = {width: 16, height: 16, num: 40};
 const singlePlayerLargeField    = {width: 30, height: 16, num: 99};
 
+io.set('origins', 'http://192.99.166.26:8080/');
+
 multiplayer.run(io, pool, teamplayField);
+
 
 const sha512 = function(password){
     let salt = crypto.randomBytes(16)
@@ -324,6 +326,7 @@ app.post("/reg", (req, res) => {
 
         pool.connect((err, client, release) => {
             if (err) {
+                console.log(err)
                 reject();
             }
             client.query(query, (err, result) => {

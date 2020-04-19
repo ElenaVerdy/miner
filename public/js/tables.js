@@ -160,7 +160,7 @@ document.getElementsByClassName("singleplayer-dropdown-menu")[0].onclick = event
 //multiplayer new game
 document.body.addEventListener("click", event => {
     if (!event.target.classList.contains("delegation_start-game")) return;
-    console.log(`game ${bla++} start req`);
+    
     if (event.target.classList.contains("delegation_start-game_singleplayer")) {
         document.getElementById("gameResults").style.display = "none";
         document.getElementsByClassName("restart")[0].click();
@@ -169,9 +169,6 @@ document.body.addEventListener("click", event => {
     }
 
     if (blockBtns.isBlocked(event.target)) return;
-    
-    blockBtns.block(event.target);
-    console.log(`game ${bla++} block line passed`);
 
     const isPrivate = event.target.classList.contains("private-game");
 
@@ -180,16 +177,13 @@ document.body.addEventListener("click", event => {
     http.open("POST", `${address}/newgame`);
     http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8')
     http.onreadystatechange = function() {
-        console.log(`game ${bla++} onreadyStateChange ${this.status}, ${this.readyState}`);
 
         if (this.status === 500) {
             console.error(this.response)
-            console.log(`game ${bla++} error`);
 
             return error(500);
         }
         if (this.readyState !== 4 || this.status !== 200) return;
-        console.log(`game ${bla++} 200`);
 
         blockBtns.abortBlocks();
 
