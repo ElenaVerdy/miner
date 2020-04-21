@@ -204,7 +204,13 @@ app.get("/rules", (req, res) => {
     res.render("rules", {isLoggedIn: req.userInfo && req.userInfo.isLoggedIn,
                         isGuest: req.userInfo && req.userInfo.isGuest});
 })
-
+//for checking 21.04.2020 -->
+app.get("/all-tables", (req, res) => {
+    res.send(JSON.stringify({
+        tables: multiplayer._getTables()
+    }));
+})
+//for checking 21.04.2020 <--
 app.get("/records/:table", (req, res) => {
     pool.connect((err, client, release) => {
 
